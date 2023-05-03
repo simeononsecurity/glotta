@@ -3,7 +3,7 @@ const { join } = require('node:path');
 const { assertValidLanguageId } = require('../../assert-valid-language-id')
 
 async function getPathsOfFilesInLanguage(startDir, languageId) {
-    assertValidLanguageId(languageId);
+    await assertValidLanguageId(languageId);
     let results = [];
     let currentDir = startDir;
     let seenDirs = [];

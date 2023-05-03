@@ -2,11 +2,11 @@ const { assertValidLanguageId } = require("../../assert-valid-language-id");
 const { assertValidTranslateProvider, TRANSLATE_PROVIDERS } = require("../../assert-valid-translate-provider")
 
 async function translateText(text, languageId, translateProvider) {
-    assertValidLanguageId(languageId);
+    await assertValidLanguageId(languageId);
     if (typeof translateProvider === 'undefined') {
         translateProvider = TRANSLATE_PROVIDERS.GOOGLE // default
     }
-    assertValidTranslateProvider(translateProvider);
+    await assertValidTranslateProvider(translateProvider);
 
     let result;
     if (translateProvider == TRANSLATE_PROVIDERS.GOOGLE) {

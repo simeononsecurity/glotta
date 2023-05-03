@@ -1,5 +1,3 @@
-const { InvalidArgumentError } = require("commander");
-
 const LANGUAGE_IDS = {
     en: 'en',
     es: 'es'
@@ -7,7 +5,7 @@ const LANGUAGE_IDS = {
 
 async function assertValidLanguageId(languageId) {
     if (typeof LANGUAGE_IDS[languageId] === 'undefined') {
-        throw new InvalidArgumentError(`${languageId} is not a valid languageId`);
+        throw TypeError(`${languageId} is not a valid languageId`);
     }
 }
 

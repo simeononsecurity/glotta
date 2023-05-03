@@ -1,7 +1,9 @@
 const { resolve } = require('node:path');
-const { getPathsOfFilesInLanguage, LANGUAGE_IDS } = require('./index');
+const { LANGUAGE_IDS } = require('../../assert-valid-language-id');
+const { getPathsOfFilesInLanguage } = require('./index');
+const { InvalidArgumentError } = require('commander');
 
-const FIXTURES_DIR = resolve(__dirname, './__fixtures__');
+const FIXTURES_DIR = resolve(__dirname, '../../../__fixtures__');
 
 describe('getPathsOfFilesInLanguage', () => {
     it('returns an array of file paths for a valid language id', async () => {
