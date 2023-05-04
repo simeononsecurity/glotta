@@ -1,10 +1,14 @@
-const { createHugoParser } = require('./create-hugo-parser');
+const { createHugoParser, createHugoVisitor } = require('./create-hugo-parser');
 
-function parseHugo(text) {
+async function parseHugo(text) {
   const { lexer, parser } = createHugoParser();
   const lexingResult = lexer.tokenize(text);
   parser.input = lexingResult.tokens;
-  return parser
+  const visiter = createHugoVisitor(parser.getBaseCstVisitorConstructor());
+  return {
+    hugoParser: parser,
+    hugoVisitor: visiter
+  }
 }
 
 module.exports = {

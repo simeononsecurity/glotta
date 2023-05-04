@@ -5,7 +5,7 @@ function createHugoParser() {
     const createToken = chevrotain.createToken;
     const Lexer = chevrotain.Lexer;
 
-    // --- lexer mode: frontmatter ---
+    // ----------------- Lexer mode: frontmatter -----------------
     const TripleDashStart = createToken({ name: "TripleDashStart", pattern: /---\n/ });
     const Colon = createToken({ name: "Colon", pattern: /:/ });
     const NewLineNotFollowedByTripleDash = createToken({ name: "NewLineNotFollowedByTripleDash", pattern: /\n(?!---)/ });
@@ -16,6 +16,7 @@ function createHugoParser() {
     const Date = createToken({ name: "Date", pattern: /\d{4}\-(0?[1-9]|1[012])\-(3[01]|[12][0-9]|0?[1-9])/ });
     const Comma = createToken({ name: "Comma", pattern: /,/ });
     const ItemKey = createToken({ name: "ItemKey", pattern: /[^:]+/ });
+    const UrlLike = createToken({ name: 'UrlLike', pattern: /"((https?:\/\/)?([a-z0-9_~-]+\.)+[a-z]{2,5}(\/\S*)?|\/.+\..+)"/ }); // imperfect but seems to work for relevant use cases
     const StringLiteral = createToken({ name: "StringLiteral", pattern: /"(?:[^\\"]|\\(?:[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*"/ });
     const NumberLiteral = createToken({ name: "NumberLiteral", pattern: /-?(0|[1-9]\d*)(\.\d+)?([eE][+-]?\d+)?/ });
     const WhiteSpace = createToken({ name: "WhiteSpace", pattern: /\s+/, group: Lexer.SKIPPED });
@@ -29,6 +30,7 @@ function createHugoParser() {
         Date,
         LSquare,
         RSquare,
+        UrlLike,
         StringLiteral,
         NewLineNotFollowedByTripleDash,
         True,
@@ -39,7 +41,7 @@ function createHugoParser() {
         WhiteSpace
     ];
 
-    // --- lexer mode: content ---
+    // ----------------- lexer mode: content -----------------
     const Content = createToken({ name: "Content", pattern: /[\s\S\n]+/ });
     const hugoContentTokens = [
         Content
@@ -61,7 +63,8 @@ function createHugoParser() {
     RSquare.LABEL = "']'";
     Colon.LABEL = "':'";
     Comma.LABEL = "','";
-    Content.LABEL = "abcdef..."
+    UrlLike.LABEL = '/abc/def.png'; // more or less
+    Content.LABEL = "abcdef...";
 
     // ----------------- parser -----------------
     const CstParser = chevrotain.CstParser;
@@ -89,13 +92,14 @@ function createHugoParser() {
             });
 
             $.RULE("frontmatterItem", () => {
-                $.CONSUME(ItemKey)
+                $.CONSUME(ItemKey);
                 $.CONSUME(Colon);
                 $.SUBRULE($.value);
             });
 
             $.RULE("value", () => {
                 $.OR([
+                    { ALT: () => $.CONSUME(UrlLike) },
                     { ALT: () => $.CONSUME(StringLiteral) },
                     { ALT: () => $.CONSUME(Date) },
                     { ALT: () => $.SUBRULE($.array) },
@@ -120,8 +124,8 @@ function createHugoParser() {
                     SEP: NewLineNotFollowedByTripleDash, DEF: () => {
                         $.CONSUME(Content)
                     }
-                })
-            })
+                });
+            });
 
             this.performSelfAnalysis();
         }
@@ -134,6 +138,97 @@ function createHugoParser() {
     };
 }
 
+function createHugoVisitor(HugoVisitorClass) {
+    class MyCustomVisitor extends HugoVisitorClass {
+        constructor() {
+            super();
+            this.validateVisitor();
+        }
+        hugo(ctx) {
+            if (ctx.frontmatter[0].recoveredNode) {
+                return;
+            }
+            return this.visit(ctx.frontmatter);
+        }
+        frontmatter(ctx) {
+            return ctx.frontmatterItem.map(fi => this.visit(fi));
+        }
+        frontmatterItem(ctx) {
+            const keyName = ctx.ItemKey[0].image;
+            const node = this.visit(ctx.value);
+            return {
+                type: `frontmatter.${keyName}`, // example: "frontmatter.coverAlt"
+                value: node.value,
+                translate: node.translate
+            }
+        }
+        value(ctx) {
+            if (ctx.UrlLike) {
+                return {
+                    type: 'UrlLike',
+                    value: ctx.UrlLike[0].image,
+                    translate: false
+                }
+            }
+            else if (ctx.StringLiteral) {
+                const value = ctx.StringLiteral[0].image;
+                return {
+                    type: 'StringLiteral',
+                    value: value,
+                    translate: value === "\"\"" ? false : true // don't translate empty strings
+                }
+            }
+            else if (ctx.NumberLiteral) {
+                return {
+                    type: 'NumberLiteral',
+                    value: ctx.NumberLiteral[0].image,
+                    translate: false
+                }
+            }
+            else if (ctx.Date) {
+                return {
+                    type: 'Date',
+                    value: ctx.Date[0].image,
+                    translate: false
+                }
+            }
+            else if (ctx.True) {
+                return {
+                    type: 'True',
+                    value: ctx.True[0].image,
+                    translate: false
+                }
+            }
+            else if (ctx.False) {
+                return {
+                    type: 'False',
+                    value: ctx.False[0].image,
+                    translate: false
+                }
+            }
+            else if (ctx.array) {
+                return {
+                    type: 'Array',
+                    value: this.visit(ctx.array),
+                }
+            }
+        }
+        array(ctx) {
+            const values = ctx.value.map(v => this.visit(v));
+            return values;
+        }
+        content(ctx) {
+            return {
+                type: 'content',
+                value: ctx.content[0].image,
+                translate: true
+            }
+        }
+    }
+    return new MyCustomVisitor();
+}
+
 module.exports = {
-    createHugoParser
+    createHugoParser,
+    createHugoVisitor
 }
