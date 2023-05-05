@@ -46,10 +46,12 @@ function createHugoParser() {
     // ----------------- lexer mode: content -----------------
     const Shortcode = createToken({ name: "Shortcode", pattern: /\{\{.+\}\}/ });
     const Content = createToken({ name: "Content", pattern: /[\s\S]*?(?=\{\{.*}\}|\[.*\]\(.*\))/ });
+    const ContentEnd = createToken({ name: "ContentEnd", pattern: /[\s\S]+/ });
     const hugoContentTokens = [
         Shortcode,
         UrlLike,     // reused
-        Content
+        Content,
+        ContentEnd
     ];
 
     const lexerConfig = {
@@ -69,15 +71,16 @@ function createHugoParser() {
     Colon.LABEL = "':'";
     Comma.LABEL = "','";
     UrlLike.LABEL = '[title](url) or /abc/def.png'; // more or less
-    Content.LABEL = "abcdef...";
-    Shortcode.LABEL = "{{abcdef}}"
+    Shortcode.LABEL = "{{abcdef}}";
+    Content.LABEL = "abcdef..."; // followed by UrlLike or Shortcode
+    ContentEnd.LABEL = "...abc";  // only if there is text before end of file but not another UrlLike nor Shortcode
 
     // ----------------- parser -----------------
     const CstParser = chevrotain.CstParser;
 
     class HugoParser extends CstParser {
         constructor() {
-            super(hugoFrontmatterTokens, { // notice ContentTokens are not passed here. The lexer is somehow able to parse in content_mode so this is OK
+            super(hugoFrontmatterTokens, { // notice ContentTokens are not passed here. The lexer is somehow able to parse in content_mode so this is OK.
                 recoveryEnabled: true
             });
 
@@ -132,6 +135,7 @@ function createHugoParser() {
                             { ALT: () => $.CONSUME(Shortcode) },
                             { ALT: () => $.CONSUME(UrlLike) },
                             { ALT: () => $.CONSUME(Content) },
+                            { ALT: () => $.CONSUME(ContentEnd) },
                         ]);
                     }
                 });
@@ -234,10 +238,6 @@ function createHugoVisitor(HugoVisitorClass) {
         content(ctx) {
             console.log(ctx);
             let content = [];
-            if (ctx.Content) {
-                ctx.Content = ctx.Content.map(c => ({ Content: true, ...c }));
-                content = content.concat(ctx.Content);
-            }
             if (ctx.Shortcode) {
                 ctx.Shortcode = ctx.Shortcode.map(c => ({ Shortcode: true, ...c }));
                 content = content.concat(ctx.Shortcode);
@@ -245,6 +245,14 @@ function createHugoVisitor(HugoVisitorClass) {
             if (ctx.UrlLike) {
                 ctx.UrlLike = ctx.UrlLike.map(c => ({ UrlLike: true, ...c }));
                 content = content.concat(ctx.UrlLike);
+            }
+            if (ctx.Content) {
+                ctx.Content = ctx.Content.map(c => ({ Content: true, ...c }));
+                content = content.concat(ctx.Content);
+            }
+            if (ctx.ContentEnd) {
+                ctx.ContentEnd = ctx.ContentEnd.map(c => ({ ContentEnd: true, ...c }));
+                content = content.concat(ctx.ContentEnd);
             }
             content.sort((a, b) => {
                 if (a.startOffset < b.startOffset) return -1;
@@ -273,7 +281,15 @@ function createHugoVisitor(HugoVisitorClass) {
                         translate: false
                     }
                 }
+                else if (c.ContentEnd) {
+                    return {
+                        type: 'ContentEnd',
+                        value: c.image,
+                        translate: true
+                    }
+                }
             });
+
             return {
                 type: 'ContentList',
                 value: content
