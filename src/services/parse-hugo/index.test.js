@@ -2,15 +2,11 @@ const { resolve } = require('node:path');
 const { parseHugo } = require('./index');
 const { getFileContents } = require('../get-file-contents');
 
-async function getFileText() {
-    return await getFileContents(MOCK_FILE_PATH)
-}
-
 describe('parseHugo', () => {
     it('parses hugo text content into expected structure', async () => {
         const MOCK_FILE_PATH = resolve(__dirname, '../../../__fixtures__/example-dir/nested-example-dir/mock-file.en.md');
         const fileText = await getFileContents(MOCK_FILE_PATH);
-        
+
         const translateTree = await parseHugo(fileText);
         expect(translateTree).toEqual(
             {
