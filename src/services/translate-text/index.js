@@ -1,5 +1,6 @@
 const { assertValidLanguageId } = require("../../assert-valid-language-id");
 const { assertValidTranslateProvider, TRANSLATE_PROVIDERS } = require("../../assert-valid-translate-provider")
+const { Translate } = require('@google-cloud/translate').v2
 
 async function translateText(text, languageId, translateProvider) {
     await assertValidLanguageId(languageId);
@@ -15,11 +16,10 @@ async function translateText(text, languageId, translateProvider) {
     else {
         result = await translateTextWithDeeplApi(text, languageId)
     }
-    return result;
+    return result[0]
 }
 
 async function translateTextWithGoogleTranslationApi(text, languageId) {
-    const { Translate } = require('@google-cloud/translate').v2
     // the following expects process.env.GOOGLE_APPLICATION_CREDENTIALS
     //   to be set to the path to gcloud service account cred json file
     const translate = new Translate();

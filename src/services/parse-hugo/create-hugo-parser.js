@@ -236,7 +236,6 @@ function createCstToTranslateInputTreeVisitor(HugoVisitorClass) {
             return values;
         }
         content(ctx) {
-            console.log(ctx);
             let content = [];
             if (ctx.Shortcode) {
                 ctx.Shortcode = ctx.Shortcode.map(c => ({ Shortcode: true, ...c }));
