@@ -1,7 +1,7 @@
 const chevrotain = require('chevrotain');
 
 function createHugoParser() {
-    // ----------------- Lexer -----------------
+    // ----------------- Lexer ----------------
     const createToken = chevrotain.createToken;
     const Lexer = chevrotain.Lexer;
 
@@ -16,11 +16,13 @@ function createHugoParser() {
     const Date = createToken({ name: "Date", pattern: /\d{4}\-(0?[1-9]|1[012])\-(3[01]|[12][0-9]|0?[1-9])/ });
     const Comma = createToken({ name: "Comma", pattern: /,/ });
     const ItemKey = createToken({ name: "ItemKey", pattern: /[^:]+/ });
-    const UrlLike = createToken({ name: 'UrlLike', pattern: /"((https?:\/\/)?([a-z0-9_~-]+\.)+[a-z]{2,5}(\/\S*)?|\/.+\..+)"/ }); // imperfect but seems to work for relevant use cases
     const StringLiteral = createToken({ name: "StringLiteral", pattern: /"(?:[^\\"]|\\(?:[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*"/ });
     const NumberLiteral = createToken({ name: "NumberLiteral", pattern: /-?(0|[1-9]\d*)(\.\d+)?([eE][+-]?\d+)?/ });
     const WhiteSpace = createToken({ name: "WhiteSpace", pattern: /\s+/, group: Lexer.SKIPPED });
     const TripleDashEnd = createToken({ name: "TripleDashEnd", pattern: /\n---\n/, push_mode: "content_mode" });
+
+    // UrlLike is used in both frontmatter mode and content mode
+    const UrlLike = createToken({ name: 'UrlLike', pattern: /(\[.+\]\(.+\)|"(((https?:\/\/)?([a-z0-9_~-]+\.)+[a-z]{2,5}(\/\S*)?)|(.+\/.+\.*.*))")/ }); // imperfect but seems to work for relevant use cases
 
     const hugoFrontmatterTokens = [
         TripleDashStart,
@@ -42,8 +44,11 @@ function createHugoParser() {
     ];
 
     // ----------------- lexer mode: content -----------------
-    const Content = createToken({ name: "Content", pattern: /[\s\S\n]+/ });
+    const Shortcode = createToken({ name: "Shortcode", pattern: /\{\{.+\}\}/ });
+    const Content = createToken({ name: "Content", pattern: /[\s\S]*?(?=\{\{.*}\}|\[.*\]\(.*\))/ });
     const hugoContentTokens = [
+        Shortcode,
+        UrlLike,     // reused
         Content
     ];
 
@@ -63,8 +68,9 @@ function createHugoParser() {
     RSquare.LABEL = "']'";
     Colon.LABEL = "':'";
     Comma.LABEL = "','";
-    UrlLike.LABEL = '/abc/def.png'; // more or less
+    UrlLike.LABEL = '[title](url) or /abc/def.png'; // more or less
     Content.LABEL = "abcdef...";
+    Shortcode.LABEL = "{{abcdef}}"
 
     // ----------------- parser -----------------
     const CstParser = chevrotain.CstParser;
@@ -120,11 +126,16 @@ function createHugoParser() {
             });
 
             $.RULE("content", () => {
-                $.MANY_SEP({
-                    SEP: NewLineNotFollowedByTripleDash, DEF: () => {
-                        $.CONSUME(Content)
+                $.MANY({
+                    DEF: () => {
+                        $.OR([
+                            { ALT: () => $.CONSUME(Shortcode) },
+                            { ALT: () => $.CONSUME(UrlLike) },
+                            { ALT: () => $.CONSUME(Content) },
+                        ]);
                     }
                 });
+
             });
 
             this.performSelfAnalysis();
@@ -148,7 +159,10 @@ function createHugoVisitor(HugoVisitorClass) {
             if (ctx.frontmatter[0].recoveredNode) {
                 return;
             }
-            return this.visit(ctx.frontmatter);
+            return {
+                frontmatter: this.visit(ctx.frontmatter),
+                content: this.visit(ctx.content)
+            }
         }
         frontmatter(ctx) {
             return ctx.frontmatterItem.map(fi => this.visit(fi));
@@ -218,10 +232,51 @@ function createHugoVisitor(HugoVisitorClass) {
             return values;
         }
         content(ctx) {
+            console.log(ctx);
+            let content = [];
+            if (ctx.Content) {
+                ctx.Content = ctx.Content.map(c => ({ Content: true, ...c }));
+                content = content.concat(ctx.Content);
+            }
+            if (ctx.Shortcode) {
+                ctx.Shortcode = ctx.Shortcode.map(c => ({ Shortcode: true, ...c }));
+                content = content.concat(ctx.Shortcode);
+            }
+            if (ctx.UrlLike) {
+                ctx.UrlLike = ctx.UrlLike.map(c => ({ UrlLike: true, ...c }));
+                content = content.concat(ctx.UrlLike);
+            }
+            content.sort((a, b) => {
+                if (a.startOffset < b.startOffset) return -1;
+                if (a.startOffset > b.startOffset) return 1;
+                return 0;
+            });
+            content = content.map(c => {
+                if (c.Content) {
+                    return {
+                        type: 'Content',
+                        value: c.image,
+                        translate: true
+                    }
+                }
+                else if (c.UrlLike) {
+                    return {
+                        type: 'UrlLike',
+                        value: c.image,
+                        translate: false
+                    }
+                }
+                else if (c.Shortcode) {
+                    return {
+                        type: 'Shortcode',
+                        value: c.image,
+                        translate: false
+                    }
+                }
+            });
             return {
-                type: 'content',
-                value: ctx.content[0].image,
-                translate: true
+                type: 'ContentList',
+                value: content
             }
         }
     }
