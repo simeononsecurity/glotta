@@ -73,7 +73,7 @@ function createHugoParser() {
     UrlLike.LABEL = '[title](url) or /abc/def.png'; // more or less
     Shortcode.LABEL = "{{abcdef}}";
     Content.LABEL = "abcdef..."; // followed by UrlLike or Shortcode
-    ContentEnd.LABEL = "...abc";  // only if there is text before end of file but not another UrlLike nor Shortcode
+    ContentEnd.LABEL = "...abc"; // only if there is text before end of file but not another UrlLike nor Shortcode
 
     // ----------------- parser -----------------
     const CstParser = chevrotain.CstParser;
@@ -193,7 +193,7 @@ function createCstToTranslateInputTreeVisitor(HugoVisitorClass) {
                 return {
                     type: 'StringLiteral',
                     value: value,
-                    translate: value === "\"\"" ? false : true // don't translate empty strings
+                    translate: value !== "\"\"" // don't translate empty strings
                 }
             }
             else if (ctx.NumberLiteral) {
