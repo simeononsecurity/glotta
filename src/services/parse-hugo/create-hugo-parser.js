@@ -153,7 +153,7 @@ function createHugoParser() {
     };
 }
 
-function createHugoVisitor(HugoVisitorClass) {
+function createCstToTranslateInputTreeVisitor(HugoVisitorClass) {
     class MyCustomVisitor extends HugoVisitorClass {
         constructor() {
             super();
@@ -301,5 +301,5 @@ function createHugoVisitor(HugoVisitorClass) {
 
 module.exports = {
     createHugoParser,
-    createHugoVisitor
+    createCstToTranslateInputTreeVisitor
 }

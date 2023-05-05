@@ -1,7 +1,6 @@
 const { resolve } = require('node:path');
 const { LANGUAGE_IDS } = require('../../assert-valid-language-id');
 const { getPathsOfFilesInLanguage } = require('./index');
-const { InvalidArgumentError } = require('commander');
 
 const FIXTURES_DIR = resolve(__dirname, '../../../__fixtures__');
 
