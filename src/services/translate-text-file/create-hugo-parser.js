@@ -1,6 +1,7 @@
 const chevrotain = require('chevrotain');
+const { LANGUAGE_IDS } = require('../../assert-valid-language-id');
 
-function createHugoParser() {
+function createLexerAndParser() {
     // ----------------- Lexer ----------------
     const createToken = chevrotain.createToken;
     const Lexer = chevrotain.Lexer;
@@ -165,11 +166,15 @@ function createCstToTranslateInputTreeVisitor(HugoVisitorClass) {
             }
             return {
                 frontmatter: this.visit(ctx.frontmatter),
-                content: this.visit(ctx.content)
+                content: this.visit(ctx.content),
+                ctx
             }
         }
         frontmatter(ctx) {
-            return ctx.frontmatterItem.map(fi => this.visit(fi));
+            return {
+                frontmatterItem: ctx.frontmatterItem.map(fi => this.visit(fi)),
+                ctx: ctx
+            }
         }
         frontmatterItem(ctx) {
             const keyName = ctx.ItemKey[0].image;
@@ -177,7 +182,8 @@ function createCstToTranslateInputTreeVisitor(HugoVisitorClass) {
             return {
                 type: `frontmatter.${keyName}`, // example: "frontmatter.coverAlt"
                 value: node.value,
-                translate: node.translate
+                translate: node.translate,
+                ctx: ctx,
             }
         }
         value(ctx) {
@@ -185,7 +191,8 @@ function createCstToTranslateInputTreeVisitor(HugoVisitorClass) {
                 return {
                     type: 'UrlLike',
                     value: ctx.UrlLike[0].image,
-                    translate: false
+                    translate: false,
+                    ctx: ctx
                 }
             }
             else if (ctx.StringLiteral) {
@@ -193,47 +200,55 @@ function createCstToTranslateInputTreeVisitor(HugoVisitorClass) {
                 return {
                     type: 'StringLiteral',
                     value: value,
-                    translate: value !== "\"\"" // don't translate empty strings
+                    translate: value !== "\"\"", // don't translate empty strings
+                    ctx: ctx
                 }
             }
             else if (ctx.NumberLiteral) {
                 return {
                     type: 'NumberLiteral',
                     value: ctx.NumberLiteral[0].image,
-                    translate: false
+                    translate: false,
+                    ctx: ctx
                 }
             }
             else if (ctx.Date) {
                 return {
                     type: 'Date',
                     value: ctx.Date[0].image,
-                    translate: false
+                    translate: false,
+                    ctx: ctx
                 }
             }
             else if (ctx.True) {
                 return {
                     type: 'True',
                     value: ctx.True[0].image,
-                    translate: false
+                    translate: false,
+                    ctx: ctx
                 }
             }
             else if (ctx.False) {
                 return {
                     type: 'False',
                     value: ctx.False[0].image,
-                    translate: false
+                    translate: false,
+                    ctx: ctx
                 }
             }
             else if (ctx.array) {
                 return {
                     type: 'Array',
                     value: this.visit(ctx.array),
+                    ctx: ctx
                 }
             }
         }
         array(ctx) {
-            const values = ctx.value.map(v => this.visit(v));
-            return values;
+            return {
+                value: ctx.value.map(v => this.visit(v)),
+                ctx
+            };
         }
         content(ctx) {
             let content = [];
@@ -291,14 +306,227 @@ function createCstToTranslateInputTreeVisitor(HugoVisitorClass) {
 
             return {
                 type: 'ContentList',
-                value: content
+                value: content,
+                ctx
             }
         }
     }
     return new MyCustomVisitor();
 }
 
+function createTranslatedCstVisitor(HugoVisitorClass) {
+    class MyCustomVisitor extends HugoVisitorClass {
+        constructor() {
+            super();
+            this.validateVisitor();
+        }
+        hugo(ctx) {
+            if (ctx.frontmatter[0].recoveredNode) {
+                return;
+            }
+            return {
+                frontmatter: this.visit(ctx.frontmatter),
+                content: this.visit(ctx.content),
+                ctx
+            }
+        }
+        frontmatter(ctx) {
+            return {
+                frontmatterItem: ctx.frontmatterItem.map(fi => this.visit(fi)),
+                ctx: ctx
+            }
+        }
+        async frontmatterItem(ctx) {
+            const keyName = ctx.ItemKey[0].image;
+            const node = this.visit(ctx.value);
+            return {
+                type: `frontmatter.${keyName}`, // example: "frontmatter.coverAlt"
+                value: node.translate ? (await translateText(node.value), LANGUAGE_IDS.es) : node.value,
+                translate: node.translate,
+                ctx: ctx,
+            }
+        }
+        value(ctx) {
+            if (ctx.UrlLike) {
+                return {
+                    type: 'UrlLike',
+                    value: ctx.UrlLike[0].image,
+                    translate: false,
+                    ctx: ctx
+                }
+            }
+            else if (ctx.StringLiteral) {
+                const value = ctx.StringLiteral[0].image;
+                return {
+                    type: 'StringLiteral',
+                    value: value,
+                    translate: value !== "\"\"", // don't translate empty strings
+                    ctx: ctx
+                }
+            }
+            else if (ctx.NumberLiteral) {
+                return {
+                    type: 'NumberLiteral',
+                    value: ctx.NumberLiteral[0].image,
+                    translate: false,
+                    ctx: ctx
+                }
+            }
+            else if (ctx.Date) {
+                return {
+                    type: 'Date',
+                    value: ctx.Date[0].image,
+                    translate: false,
+                    ctx: ctx
+                }
+            }
+            else if (ctx.True) {
+                return {
+                    type: 'True',
+                    value: ctx.True[0].image,
+                    translate: false,
+                    ctx: ctx
+                }
+            }
+            else if (ctx.False) {
+                return {
+                    type: 'False',
+                    value: ctx.False[0].image,
+                    translate: false,
+                    ctx: ctx
+                }
+            }
+            else if (ctx.array) {
+                return {
+                    type: 'Array',
+                    value: this.visit(ctx.array),
+                    ctx: ctx
+                }
+            }
+        }
+        array(ctx) {
+            return {
+                value: ctx.value.map(v => this.visit(v)),
+                ctx
+            };
+        }
+        content(ctx) {
+            let content = [];
+            if (ctx.Shortcode) {
+                ctx.Shortcode = ctx.Shortcode.map(c => ({ Shortcode: true, ...c }));
+                content = content.concat(ctx.Shortcode);
+            }
+            if (ctx.UrlLike) {
+                ctx.UrlLike = ctx.UrlLike.map(c => ({ UrlLike: true, ...c }));
+                content = content.concat(ctx.UrlLike);
+            }
+            if (ctx.Content) {
+                ctx.Content = ctx.Content.map(c => ({ Content: true, ...c }));
+                content = content.concat(ctx.Content);
+            }
+            if (ctx.ContentEnd) {
+                ctx.ContentEnd = ctx.ContentEnd.map(c => ({ ContentEnd: true, ...c }));
+                content = content.concat(ctx.ContentEnd);
+            }
+            content.sort((a, b) => {
+                if (a.startOffset < b.startOffset) return -1;
+                if (a.startOffset > b.startOffset) return 1;
+                return 0;
+            });
+            content = content.map(async c => {
+                if (c.Content) {
+                    return {
+                        type: 'Content',
+                        value: (await translateText(c.image)),
+                        translate: true
+                    }
+                }
+                else if (c.UrlLike) {
+                    return {
+                        type: 'UrlLike',
+                        value: c.image,
+                        translate: false
+                    }
+                }
+                else if (c.Shortcode) {
+                    return {
+                        type: 'Shortcode',
+                        value: c.image,
+                        translate: false
+                    }
+                }
+                else if (c.ContentEnd) {
+                    return {
+                        type: 'ContentEnd',
+                        value: await translateText(c.image),
+                        translate: true
+                    }
+                }
+            });
+
+            return {
+                type: 'ContentList',
+                value: content,
+                ctx
+            }
+        }
+    }
+    return new MyCustomVisitor();
+}
+
+/*
+function createCstToFileVisitor(HugoVisitorClass) {
+    class MyCustomVisitor extends HugoVisitorClass {
+        constructor() {
+            super();
+            this.validateVisitor();
+        }
+        hugo(ctx) {
+            if (ctx.frontmatter[0].recoveredNode) {
+                return;
+            }
+            return this.visit(ctx.frontmatter) + this.visit(ctx.content);
+        }
+        frontmatter(ctx) {
+            return ctx.frontmatter.map(frontmatterItem => this.visit(frontmatterItem)).join('\n');
+        }
+        frontmatterItem(ctx) {
+            return ctx.ItemKey[0].image + ":" + this.visit(ctx.value);
+        }
+        value(ctx) {
+            if (ctx.array) {
+                return this.visit(ctx.array).join(' ');
+            }
+            else {
+                // Opportunity: simplify grammar rules
+                const firstKey = Object.keys(ctx)[0]; // Due to the way I built this structure, there will only be one key (UrlLike, or StringLiteral, or etc...)
+                return ctx[firstKey][0].image; // And the obj is always an array
+            }
+        }
+        array(ctx) {
+            return this.visit(ctx.value).join(' ');
+        }
+        content(ctx) {
+            return ctx.content.map(c => {
+                const firstKey = Object.keys(c)[0]; // Due to the way I built this structure, there will only be one key (UrlLike, or StringLiteral, or etc...)
+                return c[firstKey][0].image;
+            }).join('\n');
+        }
+    }
+    return new MyCustomVisitor();
+}
+*/
+
+async function createHugoParser(text) {
+    const { lexer, parser } = createLexerAndParser();
+    const lexingResult = lexer.tokenize(text);
+    parser.input = lexingResult.tokens;
+    return parser;
+}
+
 module.exports = {
     createHugoParser,
-    createCstToTranslateInputTreeVisitor
+    createCstToTranslateInputTreeVisitor,
+    createTranslatedCstVisitor,
+    createCstToFileVisitor
 }

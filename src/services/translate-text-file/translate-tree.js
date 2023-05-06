@@ -11,7 +11,6 @@ async function translateTree(tree) {
 }
 
 /*
-See TranslateInputTree
 {
     type: 'Type',
     value: {
@@ -21,7 +20,8 @@ See TranslateInputTree
     } | Array<value>
     translate: true | false | undefined (undefined if value is array)
 }
- */
+*/
+
 async function translate(arr) {
     const result = [];
     for (const item of arr) {
