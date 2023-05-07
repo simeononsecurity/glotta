@@ -207,15 +207,15 @@ function cstToTranslationInput(cst, HugoVisitorClass) {
         }
         content(ctx) {
             // opportunity: could optimize by checking if pre-sorted Content/UrlLike/Shortcode/ContentEnd items are more uniform
-            const combined = [];
+            let combined = [];
             if (ctx.Content) {
-                combined.concat(ctx.Content);
+                combined = combined.concat(ctx.Content);
             }
             if (ctx.UrlLike) {
-                combined.concat(ctx.UrlLike);
+                combined = combined.concat(ctx.UrlLike);
             }
             if (ctx.ContentEnd) {
-                combined.concat(ctx.ContentEnd);
+                combined = combined.concat(ctx.ContentEnd);
             }
             combined.sort((a, b) => {
                 if (a.startOffset < b.startOffset) return -1;
@@ -232,7 +232,7 @@ function cstToTranslationInput(cst, HugoVisitorClass) {
 
                 // ------------------ handle Content ------------------
                 let text = '';
-                while (combined[i + peekAheadOffset].tokenType.name === 'Content') {
+                while (i + peekAheadOffset < combined.length && combined[i + peekAheadOffset].tokenType.name === 'Content') {
                     text += combined[i + peekAheadOffset].image;
                     peekAheadOffset++;
                 }
@@ -241,15 +241,15 @@ function cstToTranslationInput(cst, HugoVisitorClass) {
                 prevContentOffset = peekAheadOffset; // save the last known "not Content" index for backtracking next iteration
 
                 // ------------ handle UrlLike and ShortCode ------------
-                while (combined[i + peekAheadOffset].tokenType.name !== 'ContentEnd') {
-                    results.push(combined[peekAheadOffset].image);
+                while (i + peekAheadOffset < combined.length && combined[i + peekAheadOffset].tokenType.name !== 'ContentEnd') {
+                    results.push(combined[i + peekAheadOffset].image);
                     peekAheadOffset++;
                 }
 
                 // ------------------ handle ContentEnd ------------------
                 text = '';
-                while (combined[i + peekAheadOffset].tokenType.name === 'ContentEnd') { // handle ContentEnd
-                    text += combined[peekAheadOffset].image;
+                while (i + peekAheadOffset < combined.length && combined[i + peekAheadOffset].tokenType.name === 'ContentEnd') { // handle ContentEnd
+                    text += combined[i + peekAheadOffset].image;
                     peekAheadOffset++;
                 }
                 results.push(text);
