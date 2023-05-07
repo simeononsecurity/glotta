@@ -1,5 +1,4 @@
 const chevrotain = require('chevrotain');
-const { LANGUAGE_IDS } = require('../../assert-valid-language-id');
 const { translateText } = require('../translate-text');
 
 function createLexerAndParser() {
@@ -156,26 +155,28 @@ function createLexerAndParser() {
 }
 
 function createCstToTranslateInputTreeVisitor(HugoVisitorClass) {
-    let results = [];
     class MyCustomVisitor extends HugoVisitorClass {
         constructor() {
             super();
             this.validateVisitor();
+            this.results = [];
+            this.translationIndices = [];
         }
         hugo(ctx) {
             if (ctx.frontmatter[0].recoveredNode) {
                 return;
             }
-            results.push('---\n');
+            this.results.push('---\n');
             ctx.frontmatter = this.visit(ctx.frontmatter);
-            results.push('\n---\n');
+            this.results.push('\n---\n');
             ctx.content = this.visit(ctx.content);
             return ctx;
         }
         frontmatter(ctx) {
             ctx.frontmatterItem = ctx.frontmatterItem.map(fi => {
                 const fi = this.visit(fi);
-                results.push(fi.ItemKey[0].image + ': ' + fi.value[valueKey]);
+                this.results.push(fi.ItemKey[0].image + ': ');
+                return fi;
             });
             return ctx;
         }
@@ -186,9 +187,9 @@ function createCstToTranslateInputTreeVisitor(HugoVisitorClass) {
         value(ctx) {
             if (ctx.StringLiteral) {
                 let value = ctx.StringLiteral[0].image;
-                results.push(value);
+                this.results.push(value);
                 if (value !== "\"\"") {
-                    // TODO: Mark for translation
+                    this.translationIndices.push(this.results.length - 1);
                 }
             }
             else if (ctx.array) {
@@ -201,73 +202,66 @@ function createCstToTranslateInputTreeVisitor(HugoVisitorClass) {
             return ctx;
         }
         content(ctx) {
-            /*
-            let content = [];
-            if (ctx.Shortcode) {
-                ctx.Shortcode = ctx.Shortcode.map(c => ({ Shortcode: true, ...c }));
-                content = content.concat(ctx.Shortcode);
+            // opportunity: could optimize by checking if pre-sorted Concat/UrlLike/ShortCode/Contend items are more uniform
+            const combined = [];
+            if (ctx.Content) {
+                combined.concat(ctx.Content);
             }
             if (ctx.UrlLike) {
-                ctx.UrlLike = ctx.UrlLike.map(c => ({ UrlLike: true, ...c }));
-                content = content.concat(ctx.UrlLike);
-            }
-            if (ctx.Content) {
-                ctx.Content = ctx.Content.map(c => ({ Content: true, ...c }));
-                content = content.concat(ctx.Content);
+                combined.concat(ctx.UrlLike);
             }
             if (ctx.ContentEnd) {
-                ctx.ContentEnd = ctx.ContentEnd.map(c => ({ ContentEnd: true, ...c }));
-                content = content.concat(ctx.ContentEnd);
+                combined.concat(ctx.ContentEnd);
             }
-            content.sort((a, b) => {
+            combined.sort((a, b) => {
                 if (a.startOffset < b.startOffset) return -1;
                 if (a.startOffset > b.startOffset) return 1;
                 return 0;
             });
-            content = content.map(c => {
-                if (c.Content) {
-                    return {
-                        type: 'Content',
-                        value: c.image,
-                        translate: true
-                    }
-                }
-                else if (c.UrlLike) {
-                    return {
-                        type: 'UrlLike',
-                        value: c.image,
-                        translate: false
-                    }
-                }
-                else if (c.Shortcode) {
-                    return {
-                        type: 'Shortcode',
-                        value: c.image,
-                        translate: false
-                    }
-                }
-                else if (c.ContentEnd) {
-                    return {
-                        type: 'ContentEnd',
-                        value: c.image,
-                        translate: true
-                    }
-                }
-                
-            });
 
-            return {
-                type: 'ContentList',
-                value: content,
-                ctx
+            let prevContentOffset = 0;
+            for (let i = 0; i < combined.length; i++) { // for each Content/UrlLike/Shortcode/ContentEnd in combined array
+                let peekAheadOffset = 0;
+                if (i > 0 && i !== combined.length) {   // if not the first iteration, then start one after the last index checked for Content
+                    i = prevContentOffset + 1;
+                }
+
+                // ------------------ handle Content ------------------
+                let text = '';
+                while (combined[i + peekAheadOffset].tokenType.name === 'Content') {
+                    text += combined[i + peekAheadOffset].image;
+                    peekAheadOffset++;
+                }
+                this.results.push(text);
+                this.translationIndices.push(this.results.length - 1);
+                prevContentOffset = peekAheadOffset; // save the last known "not Content" index for backtracking next iteration
+
+                // ------------ handle UrlLike and ShortCode ------------
+                while (combined[i + peekAheadOffset].tokenType.name !== 'ContentEnd') {
+                    this.results.push(combined[peekAheadOffset].image);
+                    peekAheadOffset++;
+                }
+
+                // ------------------ handle ContentEnd ------------------
+                text = '';
+                while (combined[i + peekAheadOffset].tokenType.name === 'ContentEnd') { // handle ContentEnd
+                    text += combined[peekAheadOffset].image;
+                    peekAheadOffset++;
+                }
+                this.results.push(text);
+                this.translationIndices.push(this.results.length - 1);
+
+                if (peekAheadOffset === combined.length) {
+                    // then we've made it through the entire combined array already, so break out of combined array iteration
+                    break;
+                }
             }
-            */
-
             return ctx;
         }
     }
     return new MyCustomVisitor();
 }
+
 /*
 function createTranslatedCstVisitor(HugoVisitorClass) {
     class MyCustomVisitor extends HugoVisitorClass {
