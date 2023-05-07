@@ -1,4 +1,3 @@
-
 const { resolve } = require('node:path');
 const { getFileContents } = require('../get-file-contents');
 const { parseHugo } = require('./parse-hugo');
