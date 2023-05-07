@@ -1,5 +1,6 @@
 const chevrotain = require('chevrotain');
 const { LANGUAGE_IDS } = require('../../assert-valid-language-id');
+const { translateText } = require('../translate-text');
 
 function createLexerAndParser() {
     // ----------------- Lexer ----------------
@@ -155,6 +156,7 @@ function createLexerAndParser() {
 }
 
 function createCstToTranslateInputTreeVisitor(HugoVisitorClass) {
+    let results = [];
     class MyCustomVisitor extends HugoVisitorClass {
         constructor() {
             super();
@@ -164,33 +166,41 @@ function createCstToTranslateInputTreeVisitor(HugoVisitorClass) {
             if (ctx.frontmatter[0].recoveredNode) {
                 return;
             }
+            results.push('---\n');
             ctx.frontmatter = this.visit(ctx.frontmatter);
+            results.push('\n---\n');
             ctx.content = this.visit(ctx.content);
             return ctx;
         }
         frontmatter(ctx) {
-            ctx.frontmatterItem = ctx.frontmatterItem.map(fi => this.visit(fi));
+            ctx.frontmatterItem = ctx.frontmatterItem.map(fi => {
+                const fi = this.visit(fi);
+                results.push(fi.ItemKey[0].image + ': ' + fi.value[valueKey]);
+            });
             return ctx;
         }
         frontmatterItem(ctx) {
             ctx.value = this.visit(ctx.value);
             return ctx;
         }
-        async value(ctx) {
+        value(ctx) {
             if (ctx.StringLiteral) {
-                ctx.StringLiteral[0].image === "\"\"" ? ctx.StringLiteral[0].image : (await translateText(ctx.StringLiteral[0].image))
+                let value = ctx.StringLiteral[0].image;
+                results.push(value);
+                if (value !== "\"\"") {
+                    // TODO: Mark for translation
+                }
             }
             else if (ctx.array) {
                 ctx.array = this.visit(ctx.array);
+                return ctx;
             }
-            return ctx;
         }
         array(ctx) {
             ctx.value = ctx.value.map(v => this.visit(v));
             return ctx;
         }
         content(ctx) {
-
             /*
             let content = [];
             if (ctx.Shortcode) {
@@ -253,13 +263,12 @@ function createCstToTranslateInputTreeVisitor(HugoVisitorClass) {
             }
             */
 
-            return ctx
-
+            return ctx;
         }
     }
     return new MyCustomVisitor();
 }
-
+/*
 function createTranslatedCstVisitor(HugoVisitorClass) {
     class MyCustomVisitor extends HugoVisitorClass {
         constructor() {
@@ -383,7 +392,7 @@ function createTranslatedCstVisitor(HugoVisitorClass) {
                 if (c.Content) {
                     return {
                         type: 'Content',
-                        value: (await translateText(c.image)),
+                        value: (await translateText(c.image, LANGUAGE_IDS.es)),
                         translate: true
                     }
                 }
@@ -404,7 +413,7 @@ function createTranslatedCstVisitor(HugoVisitorClass) {
                 else if (c.ContentEnd) {
                     return {
                         type: 'ContentEnd',
-                        value: await translateText(c.image),
+                        value: await translateText(c.image, LANGUAGE_IDS.es),
                         translate: true
                     }
                 }
@@ -419,6 +428,7 @@ function createTranslatedCstVisitor(HugoVisitorClass) {
     }
     return new MyCustomVisitor();
 }
+*/
 
 function createCstToFileVisitor(HugoVisitorClass) {
     class MyCustomVisitor extends HugoVisitorClass {
@@ -471,6 +481,6 @@ async function createHugoParser(text) {
 module.exports = {
     createHugoParser,
     createCstToTranslateInputTreeVisitor,
-    createTranslatedCstVisitor,
+    // createTranslatedCstVisitor,
     createCstToFileVisitor
 }
