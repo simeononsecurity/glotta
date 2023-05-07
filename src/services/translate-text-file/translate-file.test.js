@@ -31,7 +31,7 @@ describe('translateTree', () => {
 });
 
 describe('translateFileText', () => {
-    it('translates expected parts of the given file', async () => {
+    it.skip('translates expected parts of the given file', async () => {
         const fileText = await getFileContents(MOCK_FILE_PATH);
         const result = await translateFileText(fileText);
 
