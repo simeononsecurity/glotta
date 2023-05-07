@@ -3,17 +3,18 @@ const { parseHugo } = require('./parse-hugo');
 
 async function translateFileText(text) {
     // parse text into cst
-    const { inputTree, BaseCstVisitorConstructor } = await parseHugo(text);
-    return inputTree;
+    const { results, translationIndices } = await parseHugo(text);
+    // return { results, trans
+    //return inputTree;
 
     // translate tree
-    const translateCstVisitor = createTranslatedCstVisitor(BaseCstVisitorConstructor);
-    const translatedCst = translateCstVisitor.visit(inputTree);
+    // const translateCstVisitor = createTranslatedCstVisitor(BaseCstVisitorConstructor);
+    // const translatedCst = translateCstVisitor.visit(inputTree);
 
     // reconstruct text
     // const cstToFileVisitor = createCstToFileVisitor(BaseCstVisitorConstructor);
     // const translatedFileText = await cstToFileVisitor.visit(translatedCst); // create file from translated tree
-    return translatedCst; // translatedFileText;
+    //return translatedCst; // translatedFileText;
 }
 
 module.exports = {
