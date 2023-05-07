@@ -102,9 +102,13 @@ function createLexerAndParser() {
             });
 
             $.RULE("frontmatterItem", () => {
-                $.CONSUME(ItemKey);
-                $.CONSUME(Colon);
-                $.SUBRULE($.value);
+                $.MANY_SEP({
+                    SEP: NewLineNotFollowedByTripleDash, DEF: () => {
+                        $.CONSUME(ItemKey);
+                        $.CONSUME(Colon);
+                        $.SUBRULE($.value);
+                    }
+                });
             });
 
             $.RULE("value", () => {
@@ -172,36 +176,37 @@ function cstToTranslationInput(cst, HugoVisitorClass) {
             return ctx;
         }
         frontmatter(ctx) {
-            ctx.frontmatterItem = ctx.frontmatterItem.map(fi => {
-                const fi = this.visit(fi);
-                results.push(fi.ItemKey[0].image + ': ');
-                return fi;
-            });
+            ctx.frontmatterItem = this.visit(ctx.frontmatterItem);
             return ctx;
         }
         frontmatterItem(ctx) {
-            ctx.value = this.visit(ctx.value);
+            const valueArr = [];
+            ctx.ItemKey.forEach((itemKey, i) => {
+                results.push(itemKey.image + ': ');
+                valueArr.push(this.visit(ctx.value[i]))
+            });
+            ctx.value = valueArr;
             return ctx;
         }
         value(ctx) {
-            if (ctx.StringLiteral) {
-                let value = ctx.StringLiteral[0].image;
-                results.push(value);
-                if (value !== "\"\"") {
+            if (!ctx.array) {
+                const key = Object.keys(ctx)[0];
+                results.push(ctx[key][0].image);
+                if (key === 'StringLiteral' && ctx[key].image !== "\"\"") {
                     translationIndices.push(results.length - 1);
                 }
             }
             else if (ctx.array) {
                 ctx.array = this.visit(ctx.array);
-                return ctx;
             }
+            return ctx;
         }
         array(ctx) {
             ctx.value = ctx.value.map(v => this.visit(v));
             return ctx;
         }
         content(ctx) {
-            // opportunity: could optimize by checking if pre-sorted Concat/UrlLike/ShortCode/Contend items are more uniform
+            // opportunity: could optimize by checking if pre-sorted Content/UrlLike/Shortcode/ContentEnd items are more uniform
             const combined = [];
             if (ctx.Content) {
                 combined.concat(ctx.Content);
