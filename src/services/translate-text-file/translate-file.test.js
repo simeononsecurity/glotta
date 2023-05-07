@@ -6,7 +6,7 @@ const { getFileContents } = require('../get-file-contents');
 
 const { translateTree } = require('./translate-tree');
 const { translateFileText } = require('./translate-file');
-// const { writeFileSync } = require('node:fs');
+const { writeFileSync } = require('node:fs');
 
 const MOCK_FILE_PATH = resolve(__dirname, '../../../__fixtures__/example-dir/nested-example-dir/mock-file.en.md');
 const MOCK_CST_PATH = resolve(__dirname, '../../../__fixtures__/mock-cst.json');
@@ -34,6 +34,9 @@ describe('translateFileText', () => {
     it('translates expected parts of the given file', async () => {
         const fileText = await getFileContents(MOCK_FILE_PATH);
         const result = await translateFileText(fileText);
+
+        writeFileSync('./mock-cst.json', JSON.stringify(result));
+
         expect(result).toEqual("");
     }, 20000);
 });
