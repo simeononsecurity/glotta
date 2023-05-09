@@ -9,14 +9,13 @@ async function translateParsedHugo(results, translationIndices) {
 
 async function translate({ results, translationIndices }) {
     for await (const i of translationIndices) {
-        results[i] = (await translateText(results[i], LANGUAGE_IDS.es))
+        results[i] = (await translateText(results[i], LANGUAGE_IDS.es));
     }
     return results;
 }
 
-
 async function asOneString(results) {
-    return results.join('')
+    return results.join('');
 }
 
 module.exports = {

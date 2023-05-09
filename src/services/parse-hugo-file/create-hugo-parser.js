@@ -44,10 +44,18 @@ function createLexerAndParser() {
     ];
 
     // ----------------- lexer mode: content -----------------
+    /*const GroupedContent = createToken({
+        name: 'GroupedContent',
+        pattern: /(?:{{<[\s\S]*?>}}|!\[[^\]]*?\]\(.*?\)|\[[^\]]*?\]\(.*?\))|([^{}[\]]+)/,
+        group: 'GroupedContent'
+    })*/
+
     const Shortcode = createToken({ name: "Shortcode", pattern: /\{\{.+\}\}/ });
     const Content = createToken({ name: "Content", pattern: /[\s\S]*?(?=\{\{.*}\}|\[.*\]\(.*\))/ });
     const ContentEnd = createToken({ name: "ContentEnd", pattern: /[\s\S]+/ });
+
     const hugoContentTokens = [
+        //GroupedContent
         Shortcode,
         UrlLike,     // reused
         Content,
@@ -218,6 +226,9 @@ function cstToTranslationInput(cst, HugoVisitorClass) {
             }
             if (ctx.UrlLike) {
                 combined = combined.concat(ctx.UrlLike);
+            }
+            if (ctx.Shortcode) {
+                combined = combined.concat(ctx.Shortcode);
             }
             if (ctx.ContentEnd) {
                 combined = combined.concat(ctx.ContentEnd);

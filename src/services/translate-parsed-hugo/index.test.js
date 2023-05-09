@@ -12,6 +12,7 @@ describe('translateParsedHugo', () => {
         const { results, translationIndices } = JSON.parse(await getFileContents(MOCK_PARSED_HUGO_PATH));
         const EXPECTED = await getFileContents(MOCK_GENERATED_HUGO_PATH);
         const translatedText = await translateParsedHugo({ results, translationIndices });
+
         expect(translatedText).toEqual(EXPECTED);
     }, 20000);
 });
