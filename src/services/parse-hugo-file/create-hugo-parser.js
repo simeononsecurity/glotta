@@ -257,7 +257,7 @@ function cstToTranslationInput(cst, HugoVisitorClass) {
                 prevContentOffset = peekAheadOffset; // save the last known "not Content" index for backtracking next iteration
 
                 // ------------ handle UrlLike and ShortCode ------------
-                while (i + peekAheadOffset < combined.length && (combined[i + peekAheadOffset].tokenType.name !== 'ContentEnd')) { /*=== 'Shortcode' || combined[i + peekAheadOffset].tokenType.name === 'UrlLike')) {*/
+                while (i + peekAheadOffset < combined.length && (combined[i + peekAheadOffset].tokenType.name !== 'ContentEnd')) {
                     results.push(combined[i + peekAheadOffset].image);
                     if (combined[i + peekAheadOffset].tokenType.name === 'Content') { // handle any content in-between other Shortcode and UrlLike's
                         translationIndices.push(results.length - 1);
