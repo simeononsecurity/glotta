@@ -44,18 +44,11 @@ function createLexerAndParser() {
     ];
 
     // ----------------- lexer mode: content -----------------
-    /*const GroupedContent = createToken({
-        name: 'GroupedContent',
-        pattern: /(?:{{<[\s\S]*?>}}|!\[[^\]]*?\]\(.*?\)|\[[^\]]*?\]\(.*?\))|([^{}[\]]+)/,
-        group: 'GroupedContent'
-    })*/
-
     const Shortcode = createToken({ name: "Shortcode", pattern: /\{\{.+\}\}/ });
     const Content = createToken({ name: "Content", pattern: /[\s\S]*?(?=\{\{.*}\}|\[.*\]\(.*\))/ });
     const ContentEnd = createToken({ name: "ContentEnd", pattern: /[\s\S]+/ });
 
     const hugoContentTokens = [
-        //GroupedContent
         Shortcode,
         UrlLike,     // reused
         Content,
