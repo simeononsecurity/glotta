@@ -1,5 +1,4 @@
 const chevrotain = require('chevrotain');
-const { translateText } = require('../translate-text');
 
 function createLexerAndParser() {
     // ----------------- Lexer ----------------
@@ -160,6 +159,7 @@ function createLexerAndParser() {
 function cstToTranslationInput(cst, HugoVisitorClass) {
     const results = [];
     const translationIndices = [];
+    let IS_WITHIN_ARRAY = false;
     class MyCustomVisitor extends HugoVisitorClass {
         constructor() {
             super();
@@ -171,7 +171,7 @@ function cstToTranslationInput(cst, HugoVisitorClass) {
             }
             results.push('---\n');
             ctx.frontmatter = this.visit(ctx.frontmatter);
-            results.push('\n---\n');
+            results.push('---\n'); // for sake of reconstruction, don't add return before ---, instead rely on the \n appended to previous value
             ctx.content = this.visit(ctx.content);
             return ctx;
         }
@@ -191,7 +191,7 @@ function cstToTranslationInput(cst, HugoVisitorClass) {
         value(ctx) {
             if (!ctx.array) {
                 const key = Object.keys(ctx)[0];
-                results.push(ctx[key][0].image);
+                results.push(ctx[key][0].image + (IS_WITHIN_ARRAY ? ', ' : '\n'));
                 if (key === 'StringLiteral' && ctx[key].image !== "\"\"") {
                     translationIndices.push(results.length - 1);
                 }
@@ -202,7 +202,12 @@ function cstToTranslationInput(cst, HugoVisitorClass) {
             return ctx;
         }
         array(ctx) {
+            IS_WITHIN_ARRAY = true;
+            results.push("[");
             ctx.value = ctx.value.map(v => this.visit(v));
+            results[results.length - 1] = results[results.length - 1].slice(0, -2); // undo last appended comma
+            results.push("]\n");
+            IS_WITHIN_ARRAY = false;
             return ctx;
         }
         content(ctx) {
