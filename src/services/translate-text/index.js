@@ -27,7 +27,6 @@ async function translateTextWithGoogleTranslationApi(text, languageId) {
         from: 'en',
         to: languageId,
     };
-    console.log('debug', options)
     let results = await translate.translate(text, options);
     return results;
 }
