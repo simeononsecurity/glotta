@@ -1,13 +1,17 @@
-const { LANGUAGE_IDS } = require("./assert-valid-language-id");
+const { LANGUAGE_IDS, assertValidLanguageId } = require("./assert-valid-language-id");
 const { getPathsOfFilesInLanguage } = require('./services/get-paths-of-files-in-language')
 const { parseHugo } = require('./services/parse-hugo');
 
 async function generateTranslatedFiles(srcDir, targetLang) {
-    const paths = await getPathsOfFilesInLanguage(srcDir, LANGUAGE_IDS.en);
-    for (let p of paths) {
+    assertValidLanguageId(targetLang);
+    const paths = await getPathsOfFilesInLanguage(srcDir, targetLang);
+    for await (let p of paths) {
         const text = await getFileContents(p);
-        const translateInputTree = await parseHugo(text);
-        // TODO
+        const { results, translationIndices } = await parseHugo(text);
+
+        const translatedText = await translateParsedHugo({ results, translationIndices });
+        const newFilepath = getNewFileNameForLanguage(p);
+        // await writeFile()
     }
 }
 

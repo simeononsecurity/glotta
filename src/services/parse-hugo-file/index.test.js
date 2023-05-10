@@ -1,7 +1,6 @@
 const { resolve } = require('node:path');
 const { getFileContents } = require('../get-file-contents');
 const { parseHugo } = require('./index');
-const { writeFileSync } = require('node:fs');
 
 const MOCK_FILE_PATH = resolve(__dirname, '../../../__fixtures__/example-dir/nested-example-dir/mock-file.en.md');
 const MOCK_PARSED_HUGO_PATH = resolve(__dirname, '../../../__fixtures__/mock-parsed-hugo.json');
