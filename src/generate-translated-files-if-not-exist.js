@@ -32,7 +32,7 @@ async function generateTranslatedFilesIfNotExist({ dir, targetLanguageIds }) {
         const inputText = await getFileContents(englishFilePath);
         const { results, translationIndices } = await parseHugo(inputText);
 
-        for await (const id of missingLanguageIds) {
+        for await (const id of missingLanguageIds.reverse()) {
             // handle translation
             console.log('translating text into... ', id);
             const translatedText = await translateParsedHugo({ results, translationIndices, targetLanguageId: id });

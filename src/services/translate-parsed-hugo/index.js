@@ -9,10 +9,20 @@ async function translateParsedHugo({ results, translationIndices, targetLanguage
 }
 
 async function translate({ results, translationIndices, targetLanguageId }) {
+    const newResults = [];
+    let j = 0;
     for await (const i of translationIndices) {
-        results[i] = (await translateText( results[i], targetLanguageId ));
+        const translatedTextSegment = (await translateText(results[i], targetLanguageId));
+        while (j < i) {
+            newResults.push(results[j]);
+            j++;
+        }
+        if (j === i) {
+            j++;
+        }
+        newResults.push(translatedTextSegment);
     }
-    return results;
+    return newResults;
 }
 
 async function asOneString(results) {
