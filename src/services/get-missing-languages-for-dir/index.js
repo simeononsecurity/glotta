@@ -1,15 +1,13 @@
 const { readdir } = require('node:fs/promises');
 const { join } = require('node:path');
-const { LANGUAGE_IDS } = require("../../assert-valid-language-id");
 
-async function getMissingLanguagesForDir(dir) {
+async function getMissingLanguageIdsForDir({ dir, targetLanguageIds }) {
     const missingLanguageIds = [];
     const existingLanguageIds = {};
-    const languageIds = Object.keys(LANGUAGE_IDS);
     const seenFiles = await readdir(dir);
 
-    for (let i = 0; i < languageIds.length; i++) {
-        const id = languageIds[i];
+    for (let i = 0; i < targetLanguageIds.length; i++) {
+        const id = targetLanguageIds[i];
         for (let j = 0; j < seenFiles.length; j++) {
             const file = seenFiles[j];
             const filepath = join(dir, file);
@@ -25,5 +23,5 @@ async function getMissingLanguagesForDir(dir) {
 }
 
 module.exports = {
-    getMissingLanguagesForDir
+    getMissingLanguageIdsForDir
 }
