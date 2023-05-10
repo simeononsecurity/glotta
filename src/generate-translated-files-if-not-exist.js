@@ -9,24 +9,23 @@ const { translateParsedHugo } = require('./services/translate-parsed-hugo');
 
 async function generateTranslatedFilesIfNotExist({ dir, targetLanguageIds }) {
     assertValidLanguageIds(targetLanguageIds);
-    console.log("\n++======== glotta ============");
-    console.log("dir:", dir);
-    console.log("targetLanguageIds:", targetLanguageIds);
-    console.log("==============================\n");
     const pathsToEnglishFiles = await getPathsOfFilesInLanguage({ startDir: dir, languageId: LANGUAGE_IDS.en, recursive: false });
+    const missingLanguageIds = await getMissingLanguageIdsForDir({ dir, targetLanguageIds });
+
+    console.log("\n========== glotta ============");
+    console.log("dir:", dir);
     console.log('Input file(s): ', pathsToEnglishFiles);
+    console.log("targetLanguageIds:", targetLanguageIds.join(', '));
+    console.log('missing languages in this dir: ', missingLanguageIds.join(', '));
+    if (missingLanguageIds.length === 0) {
+        console.log('No missing languages in this directory - no translations being done!')
+        return;
+    }
+    console.log("==============================\n");
 
     for await (let englishFilePath of pathsToEnglishFiles) {
         const absPath = await realpath(englishFilePath);
         const containingDirPath = dirname(absPath);
-        const missingLanguageIds = await getMissingLanguageIdsForDir({ dir, targetLanguageIds });
-
-        console.log('missing languages in this dir: ', missingLanguageIds);
-
-        if (missingLanguageIds.length === 0) {
-            console.log('No missing languages in this directory - no translations being done!')
-            return;
-        }
 
         // parse input file
         console.log('parsing input file...');
