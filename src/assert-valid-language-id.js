@@ -16,6 +16,12 @@ const LANGUAGE_IDS = {
     es: 'es'
 }
 
+async function assertValidLanguageIds(languageIds) {
+    for await (const id of languageIds) {
+        await assertValidLanguageId(id);
+    }
+}
+
 async function assertValidLanguageId(languageId) {
     if (typeof LANGUAGE_IDS[languageId] === 'undefined') {
         throw TypeError(`${languageId} is not a valid languageId`);
@@ -24,5 +30,6 @@ async function assertValidLanguageId(languageId) {
 
 module.exports = {
     LANGUAGE_IDS,
+    assertValidLanguageIds,
     assertValidLanguageId
 }
