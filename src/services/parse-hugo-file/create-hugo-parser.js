@@ -46,12 +46,14 @@ function createLexerAndParser() {
 
     // ----------------- lexer mode: content -----------------
     const Shortcode = createToken({ name: "Shortcode", pattern: /\{\{.+\}\}/ });
-    const Content = createToken({ name: "Content", pattern: /[\s\S]*?(?=\{\{.*}\}|\[.*\]\(.*\))/ });
+    const CodeSnippet = createToken({ name: "CodeSnippet", pattern: /```[\s\S]+```/ });
+    const Content = createToken({ name: "Content", pattern: /[\s\S]*?(?=\{\{.*}\}|\[.*\]\(.*\)|```[\s\S]+```)/ });
     const ContentEnd = createToken({ name: "ContentEnd", pattern: /[\s\S]+/ });
 
     const hugoContentTokens = [
         Shortcode,
         UrlLike,     // reused
+        CodeSnippet,
         Content,
         ContentEnd
     ];
@@ -74,6 +76,7 @@ function createLexerAndParser() {
     Comma.LABEL = "','";
     UrlLike.LABEL = '[title](url) or /abc/def.png'; // more or less
     Shortcode.LABEL = "{{abcdef}}";
+    CodeSnippet.LABEL = "``` node index.js ```";
     Content.LABEL = "abcdef..."; // followed by UrlLike or Shortcode
     ContentEnd.LABEL = "...abc"; // only if there is text before end of file but not another UrlLike nor Shortcode
 
@@ -140,6 +143,7 @@ function createLexerAndParser() {
                         $.OR([
                             { ALT: () => $.CONSUME(Shortcode) },
                             { ALT: () => $.CONSUME(UrlLike) },
+                            { ALT: () => $.CONSUME(CodeSnippet) },
                             { ALT: () => $.CONSUME(Content) },
                             { ALT: () => $.CONSUME(ContentEnd) },
                         ]);
@@ -224,6 +228,9 @@ function cstToTranslationInput(cst, HugoVisitorClass) {
             if (ctx.Shortcode) {
                 combined = combined.concat(ctx.Shortcode);
             }
+            if (ctx.CodeSnippet){
+                combined = combined.concat(ctx.CodeSnippet);
+            }
             if (ctx.ContentEnd) {
                 combined = combined.concat(ctx.ContentEnd);
             }
@@ -250,10 +257,10 @@ function cstToTranslationInput(cst, HugoVisitorClass) {
                 translationIndices.push(results.length - 1);
                 prevContentOffset = peekAheadOffset; // save the last known "not Content" index for backtracking next iteration
 
-                // ------------ handle UrlLike and ShortCode ------------
+                // ------------ handle UrlLike and ShortCode and Codesnippet ------------
                 while (i + peekAheadOffset < combined.length && (combined[i + peekAheadOffset].tokenType.name !== 'ContentEnd')) {
                     results.push(combined[i + peekAheadOffset].image);
-                    if (combined[i + peekAheadOffset].tokenType.name === 'Content') { // handle any content in-between other Shortcode and UrlLike's
+                    if (combined[i + peekAheadOffset].tokenType.name === 'Content') { // handle any content in-between Shortcodes and UrlLikes and Codesnippets
                         translationIndices.push(results.length - 1);
                     }
                     peekAheadOffset++;
