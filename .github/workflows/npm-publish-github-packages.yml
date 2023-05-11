@@ -23,10 +23,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
         
-      - name: Set up Google Cloud credentials
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
-        run: echo "$GOOGLE_APPLICATION_CREDENTIALS" > "$GOOGLE_APPLICATION_CREDENTIALS_PATH"
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS}}'
 
   publish-gpr:
     needs: build
@@ -41,10 +42,11 @@ jobs:
           node-version: 18
           registry-url: https://npm.pkg.github.com/
           
-      - name: Set up Google Cloud credentials
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
-        run: echo "$GOOGLE_APPLICATION_CREDENTIALS" > "$GOOGLE_APPLICATION_CREDENTIALS_PATH"
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS}}'
           
       - run: npm publish
         env:
