@@ -15,7 +15,7 @@ async function run() {
         .option('-l, --targetLanguageIds [targetLanguageIds...]', 'target languages', DEFAULT_TARGET_LANGUAGE_IDS)
         .option('-f, --force', 'overwrite language file even if it already exists', false)
         .addOption(new program.Option('-d, --debug').hideHelp())
-        .addOption(new program.Option('-s, --secret').hideHelp())
+        .addOption(new program.Option('-z, --secret').hideHelp())
         .parse(process.argv);
     const opts = program.opts();
 
@@ -23,7 +23,7 @@ async function run() {
     await access(opts.source); // throws if cannot access
     await assertValidLanguageIds(opts.targetLanguageIds);
 
-    if (opts.secret) {
+    if (opts.secret) { // easter egg
         console.log("Your secret message is:\nee79af38125b63593499ec2f364e3f195c54405731d97eafec6fd502ca8cff2d\n")
     }
 
