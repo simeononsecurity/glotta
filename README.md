@@ -4,7 +4,7 @@ WARNING: There are no guarantees that this code has no security vulnerabilities.
 
 Script that translates Hugo markdown file content into other languages.
 
-#### Example
+#### Example command:
 
 ```sh
 node src/index.js --source=YOUR_TARGET_DIRECTORY --recursive --force
@@ -14,6 +14,7 @@ node src/index.js --source=YOUR_TARGET_DIRECTORY --recursive --force
 # --targetLanguageIds is another option that can be specified (default target ids are: ar, bn, ca, zh, fr, de, hi, it, ja, pt, pa, ro, ru, es
 ```
 
+#### Example output:
 ```txt
 ========== glotta ============
 dir: __fixtures__/simeon-usecase-dir/content/articles/a-beginners-guide-to-setting-up-a-secure-and-resilient-vpn-for-remote-workers
