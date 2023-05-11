@@ -28,8 +28,6 @@ async function run() {
         console.log("Your secret message is:\nee79af38125b63593499ec2f364e3f195c54405731d97eafec6fd502ca8cff2d\n")
     }
 
-    console.log('NOTE: --force option not yet implemented, it will be ignored.')
-
     // execute
     if (!opts.debug)
         await generateTranslatedFilesIfNotExist({
