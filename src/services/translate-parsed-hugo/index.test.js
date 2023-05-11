@@ -11,7 +11,7 @@ const MOCK_PARSED_HUGO_PATH = resolve(__dirname, '../../../__fixtures__/mock-par
 const MOCK_GENERATED_HUGO_PATH = resolve(__dirname, '../../../__fixtures__/mock-generated-hugo.es.md'); // GOOGLE result
 const MOCK_GENERATED_HUGO_PATH_DEEPL = resolve(__dirname, '../../../__fixtures__/mock-generated-hugo-deepl.es.md'); // DEEPL result
 
-const EXPECTED_PATH = process.env.TRANSLATE_PROVIDER === TRANSLATE_PROVIDERS.GOOGLE ? MOCK_GENERATED_HUGO_PATH : MOCK_GENERATED_HUGO_PATH_DEEPL;
+const EXPECTED_PATH = process.env.TRANSLATE_PROVIDER === TRANSLATE_PROVIDERS.DEEPL ? MOCK_GENERATED_HUGO_PATH_DEEPL : MOCK_GENERATED_HUGO_PATH;
 describe('translateParsedHugo', () => {
     it('translates parsed hugo given translation indicies', async () => {
         const { results, translationIndices } = JSON.parse(await getFileContents(MOCK_PARSED_HUGO_PATH));
