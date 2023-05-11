@@ -7,8 +7,8 @@ Script that translates Hugo markdown file content into other languages.
 #### Example
 
 ```sh
-node src/index.js --source=YOUR_TARGET_DIRECTORY --recursive --force
-# --source is the root dir to search for ".en.md" files
+node src/index.js --source=__fixtures__ --recursive --force
+# --source is the root dir to search for ".en.md" files. You may replace __fixtures__ with any other dir name.
 # --recursive will include any nested directories in the root dir (default is false)
 # --force will cause existing language files to be overwritten (default is to ignore existing language file)
 # --targetLanguageIds is another option that can be specified (default target ids are: ar, bn, ca, zh, fr, de, hi, it, ja, pt, pa, ro, ru, es
