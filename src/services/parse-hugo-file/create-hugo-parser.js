@@ -1,3 +1,4 @@
+const { EOL } = require('os');
 const chevrotain = require('chevrotain');
 
 function createLexerAndParser() {
@@ -6,9 +7,9 @@ function createLexerAndParser() {
     const Lexer = chevrotain.Lexer;
 
     // ----------------- Lexer mode: frontmatter -----------------
-    const TripleDashStart = createToken({ name: "TripleDashStart", pattern: /---\n/ });
+    const TripleDashStart = createToken({ name: "TripleDashStart", pattern: EOL === '\n' ? /---\n/ : /---\r\n/ });
     const Colon = createToken({ name: "Colon", pattern: /:/ });
-    const NewLineNotFollowedByTripleDash = createToken({ name: "NewLineNotFollowedByTripleDash", pattern: /\n(?!---)/ });
+    const NewLineNotFollowedByTripleDash = createToken({ name: "NewLineNotFollowedByTripleDash", pattern: EOL === '\n' ? /\n(?!---)/ : /\r\n(?!---)/ });
     const True = createToken({ name: "True", pattern: /true/ });
     const False = createToken({ name: "False", pattern: /false/ });
     const LSquare = createToken({ name: "LSquare", pattern: /\[/ });
@@ -19,7 +20,7 @@ function createLexerAndParser() {
     const StringLiteral = createToken({ name: "StringLiteral", pattern: /"(?:[^\\"]|\\(?:[bfnrtv"\\/]|u[0-9a-fA-F]{4}))*"/ });
     const NumberLiteral = createToken({ name: "NumberLiteral", pattern: /-?(0|[1-9]\d*)(\.\d+)?([eE][+-]?\d+)?/ });
     const WhiteSpace = createToken({ name: "WhiteSpace", pattern: /\s+/, group: Lexer.SKIPPED });
-    const TripleDashEnd = createToken({ name: "TripleDashEnd", pattern: /\n---\n/, push_mode: "content_mode" });
+    const TripleDashEnd = createToken({ name: "TripleDashEnd", pattern: EOL === '\n' ? /\n---\n/ : /\r\n---\r\n/, push_mode: "content_mode" });
 
     // UrlLike is used in both frontmatter mode and content mode
     const UrlLike = createToken({ name: 'UrlLike', pattern: /(\[.+\]\(.+\)|"(((https?:\/\/)?([a-z0-9_~-]+\.)+[a-z]{2,5}(\/\S*)?)|(.+\/.+\.*.*))")/ }); // imperfect but seems to work for relevant use cases
@@ -45,12 +46,14 @@ function createLexerAndParser() {
 
     // ----------------- lexer mode: content -----------------
     const Shortcode = createToken({ name: "Shortcode", pattern: /\{\{.+\}\}/ });
-    const Content = createToken({ name: "Content", pattern: /[\s\S]*?(?=\{\{.*}\}|\[.*\]\(.*\))/ });
+    const CodeSnippet = createToken({ name: "CodeSnippet", pattern: /```[\s\S]+```/ });
+    const Content = createToken({ name: "Content", pattern: /[\s\S]*?(?=\{\{.*}\}|\[.*\]\(.*\)|```[\s\S]+```)/ });
     const ContentEnd = createToken({ name: "ContentEnd", pattern: /[\s\S]+/ });
 
     const hugoContentTokens = [
         Shortcode,
         UrlLike,     // reused
+        CodeSnippet,
         Content,
         ContentEnd
     ];
@@ -65,14 +68,15 @@ function createLexerAndParser() {
 
     const hugoLexer = new Lexer(lexerConfig);
 
-    TripleDashStart.LABEL = "'---\\n'";
-    TripleDashEnd.LABEL = "'\\n---\\n'";
+    TripleDashStart.LABEL = EOL === '\n' ? "'---\\n'" : "'---\\r\\n'";
+    TripleDashEnd.LABEL = EOL === '\n' ? "'\\n---\\n'" : "'\\r\\n---\\r\\n'";
     LSquare.LABEL = "'['";
     RSquare.LABEL = "']'";
     Colon.LABEL = "':'";
     Comma.LABEL = "','";
     UrlLike.LABEL = '[title](url) or /abc/def.png'; // more or less
     Shortcode.LABEL = "{{abcdef}}";
+    CodeSnippet.LABEL = "``` node index.js ```";
     Content.LABEL = "abcdef..."; // followed by UrlLike or Shortcode
     ContentEnd.LABEL = "...abc"; // only if there is text before end of file but not another UrlLike nor Shortcode
 
@@ -139,6 +143,7 @@ function createLexerAndParser() {
                         $.OR([
                             { ALT: () => $.CONSUME(Shortcode) },
                             { ALT: () => $.CONSUME(UrlLike) },
+                            { ALT: () => $.CONSUME(CodeSnippet) },
                             { ALT: () => $.CONSUME(Content) },
                             { ALT: () => $.CONSUME(ContentEnd) },
                         ]);
@@ -170,9 +175,9 @@ function cstToTranslationInput(cst, HugoVisitorClass) {
             if (ctx.frontmatter[0].recoveredNode) {
                 return;
             }
-            results.push('---\n');
+            results.push('---' + EOL);
             ctx.frontmatter = this.visit(ctx.frontmatter);
-            results.push('---\n'); // for sake of reconstruction, don't add return before ---, instead rely on the \n appended to previous value
+            results.push('---' + EOL); // for sake of reconstruction, don't add return before ---, instead rely on the \n appended to previous value
             ctx.content = this.visit(ctx.content);
             return ctx;
         }
@@ -192,7 +197,7 @@ function cstToTranslationInput(cst, HugoVisitorClass) {
         value(ctx) {
             if (!ctx.array) {
                 const key = Object.keys(ctx)[0];
-                results.push(ctx[key][0].image + (IS_WITHIN_ARRAY ? ', ' : '\n'));
+                results.push(ctx[key][0].image + (IS_WITHIN_ARRAY ? ', ' : EOL));
                 if (key === 'StringLiteral' && ctx[key].image !== "\"\"") {
                     translationIndices.push(results.length - 1);
                 }
@@ -207,7 +212,7 @@ function cstToTranslationInput(cst, HugoVisitorClass) {
             results.push("[");
             ctx.value = ctx.value.map(v => this.visit(v));
             results[results.length - 1] = results[results.length - 1].slice(0, -2); // undo last appended comma
-            results.push("]\n");
+            results.push("]" + EOL);
             IS_WITHIN_ARRAY = false;
             return ctx;
         }
@@ -222,6 +227,9 @@ function cstToTranslationInput(cst, HugoVisitorClass) {
             }
             if (ctx.Shortcode) {
                 combined = combined.concat(ctx.Shortcode);
+            }
+            if (ctx.CodeSnippet){
+                combined = combined.concat(ctx.CodeSnippet);
             }
             if (ctx.ContentEnd) {
                 combined = combined.concat(ctx.ContentEnd);
@@ -249,10 +257,10 @@ function cstToTranslationInput(cst, HugoVisitorClass) {
                 translationIndices.push(results.length - 1);
                 prevContentOffset = peekAheadOffset; // save the last known "not Content" index for backtracking next iteration
 
-                // ------------ handle UrlLike and ShortCode ------------
+                // ------------ handle UrlLike and ShortCode and Codesnippet ------------
                 while (i + peekAheadOffset < combined.length && (combined[i + peekAheadOffset].tokenType.name !== 'ContentEnd')) {
                     results.push(combined[i + peekAheadOffset].image);
-                    if (combined[i + peekAheadOffset].tokenType.name === 'Content') { // handle any content in-between other Shortcode and UrlLike's
+                    if (combined[i + peekAheadOffset].tokenType.name === 'Content') { // handle any content in-between Shortcodes and UrlLikes and Codesnippets
                         translationIndices.push(results.length - 1);
                     }
                     peekAheadOffset++;

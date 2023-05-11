@@ -1,5 +1,5 @@
 ---
-title: "Secure & Resilient VPN Setup for Corporate Remote Workforces"
+title: "!!!!!!!!!!!Secure & Resilient VPN Setup for Corporate Remote Workforces"
 date: 2023-03-23
 toc: true
 draft: false
@@ -44,6 +44,11 @@ When selecting a VPN solution for your organization, consider the following fact
 
 ______
 
+Does this translate?
+```sh
+node src/index.js
+```
+
 ## **Setting Up Your VPN**
 
 To set up a secure and resilient VPN for your corporate remote workers, follow these steps:
@@ -53,6 +58,7 @@ To set up a secure and resilient VPN for your corporate remote workers, follow t
 3. **Set up authentication**: Implement a strong authentication method, such as [multi-factor authentication (MFA)](https://simeononsecurity.ch/articles/what-are-the-diferent-kinds-of-factors-in-mfa/), to ensure that only authorized employees can access the VPN.
 4. **Distribute VPN client software**: Provide your remote workers with the necessary VPN client software and configuration files to access the VPN.
 
+![Scenario](content/post/image/across_column.png)
 ______
 
 ## **Ensuring VPN Security**
