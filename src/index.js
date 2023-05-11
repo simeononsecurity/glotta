@@ -5,7 +5,7 @@ const { access } = require('node:fs/promises');
 const { assertValidLanguageIds, LANGUAGE_IDS } = require('./assert-valid-language-id');
 const { generateTranslatedFilesIfNotExist } = require('./generate-translated-files-if-not-exist');
 
-const DEFAULT_TARGET_LANGUAGE_IDS = Object.keys(LANGUAGE_IDS);
+const DEFAULT_TARGET_LANGUAGE_IDS = Object.keys(LANGUAGE_IDS).filter(id => id !== 'en');
 
 async function run() {
     // init
