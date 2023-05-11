@@ -12,6 +12,7 @@ async function run() {
     program
         .version('1.0.0')
         .requiredOption('-s, --source [source]', 'must specify source directory')
+        .option('-r, --recursive', 'traverse all child folders', false)
         .option('-l, --targetLanguageIds [targetLanguageIds...]', 'target languages', DEFAULT_TARGET_LANGUAGE_IDS)
         .option('-f, --force', 'overwrite language file even if it already exists', false)
         .addOption(new program.Option('-d, --debug').hideHelp())
@@ -29,7 +30,11 @@ async function run() {
 
     // execute
     if (!opts.debug)
-        await generateTranslatedFilesIfNotExist({ dir: opts.source, targetLanguageIds: opts.targetLanguageIds });
+        await generateTranslatedFilesIfNotExist({
+            dir: opts.source,
+            targetLanguageIds: opts.targetLanguageIds,
+            recursive: opts.recursive
+        });
 }
 
 run().then().catch(err => {

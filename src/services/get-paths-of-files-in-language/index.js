@@ -2,7 +2,7 @@ const { readdir, stat } = require('node:fs/promises');
 const { join } = require('node:path');
 const { assertValidLanguageId } = require('../../assert-valid-language-id');
 
-async function getPathsOfFilesInLanguage({startDir, languageId, recursive}) {
+async function getPathsOfFilesInLanguage({ startDir, languageId, recursive }) {
     await assertValidLanguageId(languageId);
     let results = [];
     let currentDir = startDir;
