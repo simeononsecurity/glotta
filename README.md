@@ -16,7 +16,6 @@ node src/index --source=__fixtures__/example-dir/nested-example-dir
 
 [1nf053c](https://github.com/1nf053c)
 
-
 ## Owner:
 
 [simeononsecurity](https://github.com/simeononsecurity)
