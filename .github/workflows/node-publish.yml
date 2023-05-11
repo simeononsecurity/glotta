@@ -7,7 +7,7 @@ on:
     types: [created]
 
 env:
-  GOOGLE_APPLICATION_CREDENTIALS_PATH: ./dev-service-account-keys.json
+  GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
 
 jobs:
   build:
@@ -18,35 +18,32 @@ jobs:
         with:
           node-version: 18
       - run: npm -v
-
       - name: Install dependencies
         run: npm ci
-        
-      - id: 'auth'
-        name: 'Authenticate to Google Cloud'
-        uses: 'google-github-actions/auth@v1'
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
         with:
-          credentials_json: '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS}}'
+          credentials_json: ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
 
   publish-gpr:
     needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Set up Node.js 18
+        uses: actions/setup-node@v3
         with:
           node-version: 18
           registry-url: https://npm.pkg.github.com/
-          
-      - id: 'auth'
-        name: 'Authenticate to Google Cloud'
-        uses: 'google-github-actions/auth@v1'
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
         with:
-          credentials_json: '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS}}'
-          
-      - run: npm publish
+          credentials_json: ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
+      - name: Publish to GitHub Packages
+        run: npm publish
         env:
-          NODE_AUTH_TOKEN: ${{secrets.GITHUBTOKEN}}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
