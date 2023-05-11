@@ -12,9 +12,14 @@ node src/index --source=__fixtures__/example-dir/nested-example-dir
 # if this is your first time running this in this `nested-example-dir` then it will skip generation of `.es.md` file since that already exists
 ```
 
-Author: [1nf053c](https://github.com/1nf053c)
+## Author:
 
-Owner: [simeononsecurity](https://github.com/simeononsecurity)
+[1nf053c](https://github.com/1nf053c)
+
+
+## Owner:
+
+[simeononsecurity](https://github.com/simeononsecurity)
 
 ## License
 
