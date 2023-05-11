@@ -1,5 +1,5 @@
 ---
-title: "Configuración de VPN segura y resistente para fuerzas de trabajo corporativas remotas"
+title: "!!!!!!!!!!!!Configuración de VPN segura y resistente para fuerzas de trabajo corporativas remotas"
 date: 2023-03-23
 toc: true
 draft: false
