@@ -35,6 +35,18 @@ writing new file...
 translating text into...  pa
 ```
 
+## How to change Translation API Provider
+
+Set the `TRANSLATE_PROVIDER` environment variable to either `GOOGLE` or `DEEPL`, and be sure to set your `DEEPL_AUTH_KEY` as well.
+The test suites will rely on these env variables so you can test your integration by running `npm test`
+
+For example:
+```sh
+GOOGLE_APPLICATION_CREDENTIALS=./gcloud-keys/dev-service-account-keys.json
+DEEPL_AUTH_KEY= **********
+TRANSLATE_PROVIDER=DEEPL
+```
+
 
 ## Author:
 

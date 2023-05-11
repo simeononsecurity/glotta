@@ -1,8 +1,16 @@
 const { assertValidLanguageId } = require("../../assert-valid-language-id");
 const { assertValidTranslateProvider, TRANSLATE_PROVIDERS } = require("../../assert-valid-translate-provider")
+
+// Google
 const { Translate } = require('@google-cloud/translate').v2
 
-async function translateText(text, languageId, translateProvider) {
+// Deepl
+const deepl = require('deepl-node');
+const authKey = process.env.DEEPL_AUTH_KEY;
+const translator = new deepl.Translator(authKey);
+
+async function translateText(text, languageId) {
+    const translateProvider = process.env.TRANSLATE_PROVIDER;
     await assertValidLanguageId(languageId);
     if (typeof translateProvider === 'undefined') {
         translateProvider = TRANSLATE_PROVIDERS.GOOGLE // default
@@ -16,7 +24,7 @@ async function translateText(text, languageId, translateProvider) {
     else {
         result = await translateTextWithDeeplApi(text, languageId)
     }
-    return result[0]
+    return result;
 }
 
 async function translateTextWithGoogleTranslationApi(text, languageId) {
@@ -28,11 +36,12 @@ async function translateTextWithGoogleTranslationApi(text, languageId) {
         to: languageId,
     };
     let results = await translate.translate(text, options);
-    return results;
+    return results[0];
 }
 
 async function translateTextWithDeeplApi(text, languageId) {
-    throw 'not yet implemented'
+    const result = await translator.translateText(text, null, languageId);
+    return result.text;
 }
 
 module.exports = {
