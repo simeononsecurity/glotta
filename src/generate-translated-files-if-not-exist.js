@@ -7,14 +7,26 @@ const { getFileContents } = require('./services/get-file-contents');
 const { parseHugo } = require('./services/parse-hugo-file');
 const { translateParsedHugo } = require('./services/translate-parsed-hugo');
 
-async function generateTranslatedFilesIfNotExist({ dir, targetLanguageIds }) {
+async function generateTranslatedFilesIfNotExist({ dir, targetLanguageIds, recursive, force }) {
     assertValidLanguageIds(targetLanguageIds);
-    const pathsToEnglishFiles = await getPathsOfFilesInLanguage({ startDir: dir, languageId: LANGUAGE_IDS.en, recursive: false });
+
+    const discoveredEnglishMarkdownFiles = await getPathsOfFilesInLanguage({
+        startDir: dir,
+        languageId: LANGUAGE_IDS.en,
+        recursive: recursive
+    });
+
+    for await (const dir of Object.keys(discoveredEnglishMarkdownFiles)) {
+        await handleGenerateForSingleDir({ dir, targetLanguageIds, englishFilePaths: discoveredEnglishMarkdownFiles[dir] })
+    }
+}
+
+async function handleGenerateForSingleDir({ dir, targetLanguageIds, englishFilePaths }) {
     const missingLanguageIds = await getMissingLanguageIdsForDir({ dir, targetLanguageIds });
 
     console.log("\n========== glotta ============");
     console.log("dir:", dir);
-    console.log('Input file(s): ', pathsToEnglishFiles);
+    console.log('Input file(s): ', englishFilePaths);
     console.log("targetLanguageIds:", targetLanguageIds.join(', '));
     console.log('missing languages in this dir: ', missingLanguageIds.join(', '));
     if (missingLanguageIds.length === 0) {
@@ -23,7 +35,7 @@ async function generateTranslatedFilesIfNotExist({ dir, targetLanguageIds }) {
     }
     console.log("==============================\n");
 
-    for await (let englishFilePath of pathsToEnglishFiles) {
+    for await (let englishFilePath of englishFilePaths) {
         const absPath = await realpath(englishFilePath);
         const containingDirPath = dirname(absPath);
 
