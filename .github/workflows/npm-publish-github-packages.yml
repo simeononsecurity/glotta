@@ -14,8 +14,16 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
       - run: npm -v
+
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Set up Google Cloud credentials
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+        run: echo "$GOOGLE_APPLICATION_CREDENTIALS" > ./gcloud-keys/dev-service-account-keys.json
 
   publish-gpr:
     needs: build
@@ -29,6 +37,12 @@ jobs:
         with:
           node-version: 16
           registry-url: https://npm.pkg.github.com/
+          
+      - name: Set up Google Cloud credentials
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+        run: echo "$GOOGLE_APPLICATION_CREDENTIALS" > ./gcloud-keys/dev-service-account-keys.json
+          
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUBTOKEN}}
