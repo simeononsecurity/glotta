@@ -4,7 +4,7 @@ const { assertValidLanguageId } = require('../../assert-valid-language-id');
 
 async function getPathsOfFilesInLanguage({ startDir, languageId, recursive }) {
     await assertValidLanguageId(languageId);
-    let results = [];
+    const results = {};
     let currentDir = startDir;
     let seenDirs = [];
     let moreToExplore = true;
@@ -19,7 +19,10 @@ async function getPathsOfFilesInLanguage({ startDir, languageId, recursive }) {
                 }
             }
             else if (p.endsWith(`.${languageId}.md`)) {
-                results.push(p);
+                if (!results[currentDir]) {
+                    results[currentDir] = [];
+                }
+                results[currentDir].push(p)
             }
         }
         if (seenDirs.length > 0) {
