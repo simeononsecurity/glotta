@@ -44,6 +44,11 @@ Al seleccionar una solución VPN para su organización, tenga en cuenta los sigu
 
 ______
 
+¿Esto se traduce?
+```sh
+node src/index.js
+```
+
 ## **Configuración de su VPN**
 
 Para configurar una VPN segura y resistente para sus trabajadores remotos corporativos, siga estos pasos:
@@ -53,6 +58,7 @@ Para configurar una VPN segura y resistente para sus trabajadores remotos corpor
 3. **Configure la autenticación**: implemente un método de autenticación fuerte, como[multi-factor authentication (MFA)](https://simeononsecurity.ch/articles/what-are-the-diferent-kinds-of-factors-in-mfa/) para garantizar que solo los empleados autorizados puedan acceder a la VPN.
 4. **Distribuya software de cliente de VPN**: Proporcione a sus trabajadores remotos el software de cliente de VPN y los archivos de configuración necesarios para acceder a la VPN.
 
+![Scenario](content/post/image/across_column.png)
 ______
 
 ## **Garantizar la seguridad de VPN**
