@@ -1,4 +1,14 @@
-const LANGUAGE_IDS = {
+const { TRANSLATE_PROVIDERS } = require("./assert-valid-translate-provider");
+
+const LANGUAGE_IDS = process.env.TRANSLATE_PROVIDER === TRANSLATE_PROVIDERS.DEEPL ? {
+    de: 'de',
+    fr: 'fr',
+    es: 'es',
+    ja: 'ja',
+    it: 'it',
+    pl: 'pl',
+    nl: 'nl'
+} : {
     ar: 'ar',
     bn: 'bn',
     ca: 'ca',
