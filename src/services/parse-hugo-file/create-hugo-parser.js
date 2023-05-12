@@ -189,7 +189,7 @@ function cstToTranslationInput(cst, HugoVisitorClass) {
             const valueArr = [];
             ctx.ItemKey.forEach((itemKey, i) => {
                 results.push(itemKey.image + ': ');
-                valueArr.push(this.visit(ctx.value[i]))
+                valueArr.push(this.visit(ctx.value[i]));
             });
             ctx.value = valueArr;
             return ctx;
@@ -210,8 +210,10 @@ function cstToTranslationInput(cst, HugoVisitorClass) {
         array(ctx) {
             IS_WITHIN_ARRAY = true;
             results.push("[");
-            ctx.value = ctx.value.map(v => this.visit(v));
-            results[results.length - 1] = results[results.length - 1].slice(0, -2); // undo last appended comma
+            if (ctx && ctx.value && ctx.value.length > 0) {
+                ctx.value = ctx.value.map(v => this.visit(v));
+                results[results.length - 1] = results[results.length - 1].slice(0, -2); // undo last appended comma
+            }
             results.push("]" + EOL);
             IS_WITHIN_ARRAY = false;
             return ctx;
@@ -228,7 +230,7 @@ function cstToTranslationInput(cst, HugoVisitorClass) {
             if (ctx.Shortcode) {
                 combined = combined.concat(ctx.Shortcode);
             }
-            if (ctx.CodeSnippet){
+            if (ctx.CodeSnippet) {
                 combined = combined.concat(ctx.CodeSnippet);
             }
             if (ctx.ContentEnd) {
@@ -254,7 +256,9 @@ function cstToTranslationInput(cst, HugoVisitorClass) {
                     peekAheadOffset++;
                 }
                 results.push(text);
-                translationIndices.push(results.length - 1);
+                if (text.length > 0) {
+                    translationIndices.push(results.length - 1);
+                }
                 prevContentOffset = peekAheadOffset; // save the last known "not Content" index for backtracking next iteration
 
                 // ------------ handle UrlLike and ShortCode and Codesnippet ------------
@@ -273,7 +277,9 @@ function cstToTranslationInput(cst, HugoVisitorClass) {
                     peekAheadOffset++;
                 }
                 results.push(text);
-                translationIndices.push(results.length - 1);
+                if (text.length > 0) {
+                    translationIndices.push(results.length - 1);
+                }
 
                 if (peekAheadOffset === combined.length) {
                     // then we've made it through the entire combined array already, so break out of combined array iteration
