@@ -22,6 +22,10 @@ async function translate({ results, translationIndices, targetLanguageId }) {
         }
         newResults.push(translatedTextSegment);
     }
+    while(j < results.length){
+        newResults.push(results[j]);
+        j++;
+    }
     return newResults;
 }
 
