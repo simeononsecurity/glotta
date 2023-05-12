@@ -6,25 +6,24 @@ const { Translate } = require('@google-cloud/translate').v2
 
 // Deepl
 const deepl = require('deepl-node');
+const { withRetries } = require("../with-retries");
 const authKey = process.env.DEEPL_AUTH_KEY;
 const translator = new deepl.Translator(authKey);
 
 async function translateText(text, languageId) {
-    const translateProvider = process.env.TRANSLATE_PROVIDER;
     await assertValidLanguageId(languageId);
+    const translateTextWithProviderFunc = withRetries(await getTranslationApiProvider());
+    const result = await translateTextWithProviderFunc(text, languageId);
+    return result;
+}
+
+async function getTranslationApiProvider() {
+    const translateProvider = process.env.TRANSLATE_PROVIDER;
     if (typeof translateProvider === 'undefined') {
         translateProvider = TRANSLATE_PROVIDERS.GOOGLE // default
     }
     await assertValidTranslateProvider(translateProvider);
-
-    let result;
-    if (translateProvider == TRANSLATE_PROVIDERS.GOOGLE) {
-        result = await translateTextWithGoogleTranslationApi(text, languageId);
-    }
-    else {
-        result = await translateTextWithDeeplApi(text, languageId)
-    }
-    return result;
+    return translateProvider === TRANSLATE_PROVIDERS.DEEPL ? translateTextWithDeeplApi : translateTextWithGoogleTranslationApi;
 }
 
 async function translateTextWithGoogleTranslationApi(text, languageId) {
