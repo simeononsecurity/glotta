@@ -291,6 +291,7 @@ function cstToTranslationInput(cst, HugoVisitorClass) {
     }
     const customVisitor = new MyCustomVisitor();
     customVisitor.visit(cst);
+
     return {
         results,
         translationIndices

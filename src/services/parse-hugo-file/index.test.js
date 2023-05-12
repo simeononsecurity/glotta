@@ -10,6 +10,7 @@ describe('parseHugo', () => {
         const fileText = await getFileContents(MOCK_FILE_PATH);
         const expectedData = await getFileContents(MOCK_PARSED_HUGO_PATH);
         const { results, translationIndices } = await parseHugo(fileText);
+
         expect(JSON.stringify({ results, translationIndices }, null, 2)).toEqual(JSON.stringify(JSON.parse(expectedData), null, 2));
     });
 });
