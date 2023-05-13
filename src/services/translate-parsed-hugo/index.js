@@ -1,18 +1,29 @@
+const { EOL } = require('os');
 const { translateText } = require('../translate-text');
 const { assertValidLanguageId } = require('../../assert-valid-language-id');
 
-async function translateParsedHugo({ results, translationIndices, targetLanguageId }) {
+async function translateParsedHugo({ results, translationDetails, targetLanguageId }) {
     await assertValidLanguageId(targetLanguageId);
-    const translatedResults = await translate({ results, translationIndices, targetLanguageId });
+    const translatedResults = await translate({ results, translationDetails, targetLanguageId });
     const translatedFileText = await asOneString(translatedResults);
     return translatedFileText;
 }
 
-async function translate({ results, translationIndices, targetLanguageId }) {
+async function translate({ results, translationDetails, targetLanguageId }) {
     const newResults = [];
     let j = 0;
-    for await (const i of translationIndices) {
-        const translatedTextSegment = (await translateText(results[i], targetLanguageId));
+    for await (const i of translationDetails.locations) {
+        let textToTranslate = results[i];
+        const fmItem = translationDetails.frontmatterItemValueLocations[i];
+        
+        if (fmItem) {
+            textToTranslate = fmItem ? fmItem.rawValue : textToTranslate;
+        }
+        let translatedTextSegment = (await translateText(textToTranslate, targetLanguageId));
+        if (fmItem) {
+            translatedTextSegment = `"${translatedTextSegment}${fmItem.suffix}`
+        }
+
         while (j < i) {
             newResults.push(results[j]);
             j++;
@@ -22,7 +33,7 @@ async function translate({ results, translationIndices, targetLanguageId }) {
         }
         newResults.push(translatedTextSegment);
     }
-    while(j < results.length){
+    while (j < results.length) {
         newResults.push(results[j]);
         j++;
     }

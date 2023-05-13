@@ -3,10 +3,10 @@ title: "Guía para principiantes sobre respuesta a incidentes de ciberseguridad"
 date: 2023-03-16
 toc: true
 draft: false
-description: "Aprenda los conceptos básicos de la respuesta a incidentes y el manejo de incidentes de ciberseguridad con esta guía para principiantes".
-tags: ["respuesta al incidente","la seguridad cibernética","Guía para principiantes","protección de Datos","seguridad de datos","Seguridad informatica","Seguridad de la red","Ataques ciberneticos","seguridad de información","ciberdelincuencia","seguridad digital","Esa infraestructura","violaciones de datos","amenazas cibernéticas","defensa cibernética","administracion de incidentes","recuperación de datos","planificación de la seguridad","gestión de riesgos","estrategia de ciberseguridad"]
+description: "Aprenda los conceptos básicos de la respuesta a incidentes y el manejo de incidentes de ciberseguridad con esta guía para principiantes."
+tags: ["respuesta al incidente", "la seguridad cibernética", "Guía para principiantes", "protección de Datos", "seguridad de datos", "seguridad informatica", "Seguridad de la red", "Ataques ciberneticos", "seguridad de información", "ciberdelincuencia", "seguridad digital", "esa infraestructura", "violaciones de datos", "amenazas cibernéticas", "defensa cibernética", "administracion de incidentes", "recuperación de datos", "planificación de la seguridad", "gestión de riesgos", "estrategia de ciberseguridad"]
 cover: "/img/cover/A_cartoon_image_of_a_cybersecurity_superhero_defending_a_city.png"
-coverAlt: "Una caricatura de un superhéroe de ciberseguridad que defiende una ciudad contra las amenazas cibernéticas".
+coverAlt: "Una caricatura de un superhéroe de ciberseguridad que defiende una ciudad contra las ciberamenazas."
 coverCaption: ""
 ---
 
