@@ -31,11 +31,11 @@ async function translate({ results, translationIndices, targetLanguageId }) {
 
 async function asOneString(results, targetLanguageId) {
     let str = results.join('');
-    if (targetLanguageId === LANGUAGE_IDS.ar) {
+    if (targetLanguageId === LANGUAGE_IDS.de) {
         str = str.replace('„', '"');
         str = str.replace('“', '"');
     }
-    else if(targetLanguageId === LANGUAGE_IDS.de){
+    else if (targetLanguageId === LANGUAGE_IDS.ar) {
         str = str.replace('،', ',');
     }
     return str;
