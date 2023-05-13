@@ -1,18 +1,29 @@
+const { EOL } = require('os');
 const { translateText } = require('../translate-text');
-const { assertValidLanguageId, LANGUAGE_IDS } = require('../../assert-valid-language-id');
+const { assertValidLanguageId } = require('../../assert-valid-language-id');
 
-async function translateParsedHugo({ results, translationIndices, targetLanguageId }) {
+async function translateParsedHugo({ results, translationDetails, targetLanguageId }) {
     await assertValidLanguageId(targetLanguageId);
-    const translatedResults = await translate({ results, translationIndices, targetLanguageId });
-    const translatedFileText = await asOneString(translatedResults, targetLanguageId);
+    const translatedResults = await translate({ results, translationDetails, targetLanguageId });
+    const translatedFileText = await asOneString(translatedResults);
     return translatedFileText;
 }
 
-async function translate({ results, translationIndices, targetLanguageId }) {
+async function translate({ results, translationDetails, targetLanguageId }) {
     const newResults = [];
     let j = 0;
-    for await (const i of translationIndices) {
-        const translatedTextSegment = (await translateText(results[i], targetLanguageId));
+    for await (const i of translationDetails.locations) {
+        let textToTranslate = results[i];
+        const fmItem = translationDetails.frontmatterItemValueLocations[i];
+        
+        if (fmItem) {
+            textToTranslate = fmItem ? fmItem.rawValue : textToTranslate;
+        }
+        let translatedTextSegment = (await translateText(textToTranslate, targetLanguageId));
+        if (fmItem) {
+            translatedTextSegment = `"${translatedTextSegment}${fmItem.suffix}`
+        }
+
         while (j < i) {
             newResults.push(results[j]);
             j++;
@@ -29,16 +40,8 @@ async function translate({ results, translationIndices, targetLanguageId }) {
     return newResults;
 }
 
-async function asOneString(results, targetLanguageId) {
-    let str = results.join('');
-    if (targetLanguageId === LANGUAGE_IDS.de) {
-        str = str.replace('„', '"');
-        str = str.replace('“', '"');
-    }
-    else if (targetLanguageId === LANGUAGE_IDS.ar) {
-        str = str.replace('،', ',');
-    }
-    return str;
+async function asOneString(results) {
+    return results.join('');
 }
 
 module.exports = {

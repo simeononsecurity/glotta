@@ -164,7 +164,11 @@ function createLexerAndParser() {
 
 function cstToTranslationInput(cst, HugoVisitorClass) {
     const results = [];
-    const translationIndices = [];
+    const translationDetails = {
+        locations: [],
+        frontmatterItemValueLocations: {}
+    }
+    let IS_FRONTMATTER_VALUE = false;
     let IS_WITHIN_ARRAY = false;
     class MyCustomVisitor extends HugoVisitorClass {
         constructor() {
@@ -189,7 +193,9 @@ function cstToTranslationInput(cst, HugoVisitorClass) {
             const valueArr = [];
             ctx.ItemKey.forEach((itemKey, i) => {
                 results.push(itemKey.image + ': ');
+                IS_FRONTMATTER_VALUE = true;
                 valueArr.push(this.visit(ctx.value[i]));
+                IS_FRONTMATTER_VALUE = false;
             });
             ctx.value = valueArr;
             return ctx;
@@ -197,9 +203,14 @@ function cstToTranslationInput(cst, HugoVisitorClass) {
         value(ctx) {
             if (!ctx.array) {
                 const key = Object.keys(ctx)[0];
-                results.push(ctx[key][0].image + (IS_WITHIN_ARRAY ? ', ' : EOL));
+                const rawValue = ctx[key][0].image.slice(1, -1);
+                const suffix = IS_WITHIN_ARRAY ? ', ' : EOL;
+                results.push(ctx[key][0].image + suffix);
                 if (key === 'StringLiteral' && ctx[key].image !== "\"\"") {
-                    translationIndices.push(results.length - 1);
+                    translationDetails.locations.push(results.length - 1);
+                    if (IS_FRONTMATTER_VALUE) {
+                        translationDetails.frontmatterItemValueLocations[results.length - 1] = { rawValue, suffix: '"' + suffix }
+                    }
                 }
             }
             else if (ctx.array) {
@@ -213,6 +224,7 @@ function cstToTranslationInput(cst, HugoVisitorClass) {
             if (ctx && ctx.value && ctx.value.length > 0) {
                 ctx.value = ctx.value.map(v => this.visit(v));
                 results[results.length - 1] = results[results.length - 1].slice(0, -2); // undo last appended comma
+                translationDetails.frontmatterItemValueLocations[results.length - 1].suffix = '"' // keep tracked suffix accurate for this index
             }
             results.push("]" + EOL);
             IS_WITHIN_ARRAY = false;
@@ -257,7 +269,7 @@ function cstToTranslationInput(cst, HugoVisitorClass) {
                 }
                 results.push(text);
                 if (text.length > 0) {
-                    translationIndices.push(results.length - 1);
+                    translationDetails.locations.push(results.length - 1);
                 }
                 prevContentOffset = peekAheadOffset; // save the last known "not Content" index for backtracking next iteration
 
@@ -265,7 +277,7 @@ function cstToTranslationInput(cst, HugoVisitorClass) {
                 while (i + peekAheadOffset < combined.length && (combined[i + peekAheadOffset].tokenType.name !== 'ContentEnd')) {
                     results.push(combined[i + peekAheadOffset].image);
                     if (combined[i + peekAheadOffset].tokenType.name === 'Content') { // handle any content in-between Shortcodes and UrlLikes and Codesnippets
-                        translationIndices.push(results.length - 1);
+                        translationDetails.locations.push(results.length - 1);
                     }
                     peekAheadOffset++;
                 }
@@ -278,7 +290,7 @@ function cstToTranslationInput(cst, HugoVisitorClass) {
                 }
                 results.push(text);
                 if (text.length > 0) {
-                    translationIndices.push(results.length - 1);
+                    translationDetails.locations.push(results.length - 1);
                 }
 
                 if (peekAheadOffset === combined.length) {
@@ -294,7 +306,7 @@ function cstToTranslationInput(cst, HugoVisitorClass) {
 
     return {
         results,
-        translationIndices
+        translationDetails
     }
 }
 
