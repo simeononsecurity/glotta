@@ -1,55 +1,56 @@
 {
   "results": [
-      "---\n",
-      "title: ",
-      "\"Beginner's Guide to Cybersecurity Incident Response\"\n",
-      "date: ",
-      "2023-03-16\n",
-      "toc: ",
-      "true\n",
-      "draft: ",
-      "false\n",
-      "description: ",
-      "\"Learn the basics of incident response and handling cybersecurity incidents with this beginner's guide.\"\n",
-      "tags: ",
-      "[",
-      "\"incident response\", ",
-      "\"cybersecurity\", ",
-      "\"beginner's guide\", ",
-      "\"data protection\", ",
-      "\"data security\", ",
-      "\"IT security\", ",
-      "\"network security\", ",
-      "\"cyber attacks\", ",
-      "\"information security\", ",
-      "\"cybercrime\", ",
-      "\"digital security\", ",
-      "\"IT infrastructure\", ",
-      "\"data breaches\", ",
-      "\"cyber threats\", ",
-      "\"cyber defense\", ",
-      "\"incident management\", ",
-      "\"data recovery\", ",
-      "\"security planning\", ",
-      "\"risk management\", ",
-      "\"cybersecurity strategy\"",
-      "]\n",
-      "cover: ",
-      "\"/img/cover/A_cartoon_image_of_a_cybersecurity_superhero_defending_a_city.png\"\n",
-      "coverAlt: ",
-      "\"A cartoon image of a cybersecurity superhero defending a city against cyber threats.\"\n",
-      "coverCaption: ",
-      "\"\"\n",
-      "---\n",
-      "\n**Beginner's Guide to Cybersecurity Incident Response**\n\nAs the world becomes more reliant on technology, **cybersecurity** has\n\n## What is Incident Response?\n\n**Incident response** is the process.\n\n______\n\n## The Incident Response Process\n\nThe incident:\n\n### Preparation\n\n**Preparation** is the first\n\n",
-      "[fake-url-title](fake-url)",
-      "\n\nhey hey hey\n\n",
-      "{{fake-short-code}}",
-      "\n\nIdentification\n\nThe second step in the incident response process is **identification**. This involves detecting\n\n## Best Practices for Incident Response\n\nEffective incident response requires a\n\n- **Develop an incident response plan**: Create a plan thatincidents.\n- **Train employees**: Make sure that all employees are trained on\n______\n\n## Conclusion\n\nEffective incident response is critical for minimizing the damage caused by cybersecurity incidents.\n\n",
-      "[test](abc)",
-      "\n\ntrailingtext"
+    "---\n",
+    "title: ",
+    "\"Beginner's Guide to Cybersecurity Incident Response\"\n",
+    "date: ",
+    "2023-03-16\n",
+    "toc: ",
+    "true\n",
+    "draft: ",
+    "false\n",
+    "description: ",
+    "\"Learn the basics of incident response and handling cybersecurity incidents with this beginner's guide.\"\n",
+    "tags: ",
+    "[",
+    "\"incident response\", ",
+    "\"cybersecurity\", ",
+    "\"beginner's guide\", ",
+    "\"data protection\", ",
+    "\"data security\", ",
+    "\"IT security\", ",
+    "\"network security\", ",
+    "\"cyber attacks\", ",
+    "\"information security\", ",
+    "\"cybercrime\", ",
+    "\"digital security\", ",
+    "\"IT infrastructure\", ",
+    "\"data breaches\", ",
+    "\"cyber threats\", ",
+    "\"cyber defense\", ",
+    "\"incident management\", ",
+    "\"data recovery\", ",
+    "\"security planning\", ",
+    "\"risk management\", ",
+    "\"cybersecurity strategy\"",
+    "]\n",
+    "cover: ",
+    "\"/img/cover/A_cartoon_image_of_a_cybersecurity_superhero_defending_a_city.png\"\n",
+    "coverAlt: ",
+    "\"A cartoon image of a cybersecurity superhero defending a city against cyber threats.\"\n",
+    "coverCaption: ",
+    "\"\"\n",
+    "---\n",
+    "\n**Beginner's Guide to Cybersecurity Incident Response**\n\nAs the world becomes more reliant on technology, **cybersecurity** has\n\n## What is Incident Response?\n\n**Incident response** is the process.\n\n______\n\n## The Incident Response Process\n\nThe incident:\n\n### Preparation\n\n**Preparation** is the first\n\n",
+    "[fake-url-title](fake-url)",
+    "\n\nhey hey hey\n\n",
+    "{{fake-short-code}}",
+    "\n\nIdentification\n\nThe second step in the incident response process is **identification**. This involves detecting\n\n## Best Practices for Incident Response\n\nEffective incident response requires a\n\n- **Develop an incident response plan**: Create a plan thatincidents.\n- **Train employees**: Make sure that all employees are trained on\n______\n\n## Conclusion\n\nEffective incident response is critical for minimizing the damage caused by cybersecurity incidents.\n\n",
+    "[test](abc)",
+    "\n\ntrailingtext"
   ],
-  "translationIndices": [
+  "translationDetails": {
+    "locations": [
       2,
       10,
       13,
@@ -78,5 +79,104 @@
       43,
       45,
       47
-  ]
+    ],
+    "frontmatterItemValueLocations": {
+      "2": {
+        "rawValue": "Beginner's Guide to Cybersecurity Incident Response",
+        "suffix": "\"\n"
+      },
+      "10": {
+        "rawValue": "Learn the basics of incident response and handling cybersecurity incidents with this beginner's guide.",
+        "suffix": "\"\n"
+      },
+      "13": {
+        "rawValue": "incident response",
+        "suffix": "\", "
+      },
+      "14": {
+        "rawValue": "cybersecurity",
+        "suffix": "\", "
+      },
+      "15": {
+        "rawValue": "beginner's guide",
+        "suffix": "\", "
+      },
+      "16": {
+        "rawValue": "data protection",
+        "suffix": "\", "
+      },
+      "17": {
+        "rawValue": "data security",
+        "suffix": "\", "
+      },
+      "18": {
+        "rawValue": "IT security",
+        "suffix": "\", "
+      },
+      "19": {
+        "rawValue": "network security",
+        "suffix": "\", "
+      },
+      "20": {
+        "rawValue": "cyber attacks",
+        "suffix": "\", "
+      },
+      "21": {
+        "rawValue": "information security",
+        "suffix": "\", "
+      },
+      "22": {
+        "rawValue": "cybercrime",
+        "suffix": "\", "
+      },
+      "23": {
+        "rawValue": "digital security",
+        "suffix": "\", "
+      },
+      "24": {
+        "rawValue": "IT infrastructure",
+        "suffix": "\", "
+      },
+      "25": {
+        "rawValue": "data breaches",
+        "suffix": "\", "
+      },
+      "26": {
+        "rawValue": "cyber threats",
+        "suffix": "\", "
+      },
+      "27": {
+        "rawValue": "cyber defense",
+        "suffix": "\", "
+      },
+      "28": {
+        "rawValue": "incident management",
+        "suffix": "\", "
+      },
+      "29": {
+        "rawValue": "data recovery",
+        "suffix": "\", "
+      },
+      "30": {
+        "rawValue": "security planning",
+        "suffix": "\", "
+      },
+      "31": {
+        "rawValue": "risk management",
+        "suffix": "\", "
+      },
+      "32": {
+        "rawValue": "cybersecurity strategy",
+        "suffix": "\""
+      },
+      "37": {
+        "rawValue": "A cartoon image of a cybersecurity superhero defending a city against cyber threats.",
+        "suffix": "\"\n"
+      },
+      "39": {
+        "rawValue": "",
+        "suffix": "\"\n"
+      }
+    }
+  }
 }

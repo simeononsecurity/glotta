@@ -49,12 +49,12 @@ async function handleGenerateForSingleDir({ dir, targetLanguageIds, englishFileP
         // parse input file
         console.log('parsing input file...');
         const inputText = await getFileContents(englishFilePath);
-        const { results, translationIndices } = await parseHugo(inputText);
+        const { results, translationDetails } = await parseHugo(inputText);
 
         for await (const id of languageIdsToWrite.reverse()) {
             // handle translation
             console.log('translating text into... ', id);
-            const translatedText = await translateParsedHugo({ results, translationIndices, targetLanguageId: id });
+            const translatedText = await translateParsedHugo({ results, translationDetails, targetLanguageId: id });
 
             // write new file
             console.log('writing new file...');
