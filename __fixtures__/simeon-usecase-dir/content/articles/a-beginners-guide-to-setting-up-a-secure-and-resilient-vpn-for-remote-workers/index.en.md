@@ -4,7 +4,7 @@ date: 2023-03-23
 toc: true
 draft: false
 description: "Discover how to set up a secure and resilient VPN for your corporate remote employees, ensuring safe access to company resources."
-tags: ["VPN", "remote work", "corporate VPN", "network security", "encryption", "tunneling protocols", "VPN setup", "VPN server", "VPN security", "VPN maintenance", "VPN monitoring", "VPN solution", "authentication", "data security", "privacy", "performance", "scalability", "compatibility", "employee training", "best practices"]
+tags: ["Windows Defender", "Windows 10", "Windows 10 Security", "PowerShell Script", "Hardening", "Defender Hardening", "Security Automation", "Compliance", "Controlled Folder Access", "Intrusion Prevention System", "Application Control", "Attack Surface Reduction", "Exploit Protections", "Cloud-Delivered Protections", "Network Protections", "Windows Defender STIG Script", "Windows Defender STIG", "Windows Defender Antivirus STIG V2R1", "WDAC", "ASR"]
 cover: "/img/cover/A_3D_animated_image_depicting_a_secure_tunnel.png"
 coverAlt: "A 3D animated image depicting a secure tunnel connecting a remote worker's laptop to a company building that says Image"
 coverCaption: ""
