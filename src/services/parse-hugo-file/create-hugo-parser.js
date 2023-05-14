@@ -47,7 +47,7 @@ function createLexerAndParser() {
     // ----------------- lexer mode: content -----------------
     const Shortcode = createToken({ name: "Shortcode", pattern: /\{\{.+\}\}/ });
     const CodeSnippet = createToken({ name: "CodeSnippet", pattern: /```[\s\S]+```/ });
-    const InlineCodeSnippet = createToken({ name: "InlineCodeSnippet", pattern: /`[\s\S]+`/ });
+    // const InlineCodeSnippet = createToken({ name: "InlineCodeSnippet", pattern: /`[\s\S]+`/ });
     const Content = createToken({ name: "Content", pattern: /[\s\S]*?(?=\{\{.*}\}|\[.*\]\(.*\)|```[\s\S]+```|`[\s\S]+`)/ });
     const ContentEnd = createToken({ name: "ContentEnd", pattern: /[\s\S]+/ });
 
@@ -55,7 +55,7 @@ function createLexerAndParser() {
         Shortcode,
         UrlLike,     // reused
         CodeSnippet,
-        InlineCodeSnippet,
+        // InlineCodeSnippet,
         Content,
         ContentEnd
     ];
@@ -79,7 +79,7 @@ function createLexerAndParser() {
     UrlLike.LABEL = '[title](url) or /abc/def.png'; // more or less
     Shortcode.LABEL = "{{abcdef}}";
     CodeSnippet.LABEL = "``` node index.js ```";
-    InlineCodeSnippet.LABEL = "`node index.js`";
+    // InlineCodeSnippet.LABEL = "`node index.js`";
     Content.LABEL = "abcdef..."; // followed by UrlLike or Shortcode
     ContentEnd.LABEL = "...abc"; // only if there is text before end of file but not another UrlLike nor Shortcode
 
@@ -147,7 +147,7 @@ function createLexerAndParser() {
                             { ALT: () => $.CONSUME(Shortcode) },
                             { ALT: () => $.CONSUME(UrlLike) },
                             { ALT: () => $.CONSUME(CodeSnippet) },
-                            { ALT: () => $.CONSUME(InlineCodeSnippet) },
+                            // { ALT: () => $.CONSUME(InlineCodeSnippet) },
                             { ALT: () => $.CONSUME(Content) },
                             { ALT: () => $.CONSUME(ContentEnd) },
                         ]);
@@ -249,9 +249,9 @@ function cstToTranslationInput(cst, HugoVisitorClass) {
             if (ctx.CodeSnippet) {
                 combined = combined.concat(ctx.CodeSnippet);
             }
-            if (ctx.InlineCodeSnippet) {
-                combined = combined.concat(ctx.InlineCodeSnippet);
-            }
+            // if (ctx.InlineCodeSnippet) {
+            //     combined = combined.concat(ctx.InlineCodeSnippet);
+            // }
             if (ctx.ContentEnd) {
                 combined = combined.concat(ctx.ContentEnd);
             }
