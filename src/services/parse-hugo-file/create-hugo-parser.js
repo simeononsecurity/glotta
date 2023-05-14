@@ -224,7 +224,7 @@ function cstToTranslationInput(cst, HugoVisitorClass) {
             if (ctx && ctx.value && ctx.value.length > 0) {
                 ctx.value = ctx.value.map(v => this.visit(v));
                 results[results.length - 1] = results[results.length - 1].slice(0, -2); // undo last appended comma
-                translationDetails.frontmatterItemValueLocations[results.length - 1].suffix = '"' // keep tracked suffix accurate for this index
+                translationDetails.frontmatterItemValueLocations[results.length - 1].suffix = '"'; // keep tracked suffix accurate for this index
             }
             results.push("]" + EOL);
             IS_WITHIN_ARRAY = false;
