@@ -7,7 +7,8 @@ const LANGUAGE_IDS = process.env.TRANSLATE_PROVIDER === TRANSLATE_PROVIDERS.DEEP
     ja: 'ja',
     it: 'it',
     pl: 'pl',
-    nl: 'nl'
+    nl: 'nl',
+    en: 'en'
 } : {
     ar: 'ar',
     bn: 'bn',
@@ -23,7 +24,8 @@ const LANGUAGE_IDS = process.env.TRANSLATE_PROVIDER === TRANSLATE_PROVIDERS.DEEP
     pa: 'pa',
     ro: 'ro',
     ru: 'ru',
-    es: 'es'
+    es: 'es',
+    en: 'en'
 }
 
 async function assertValidLanguageIds(languageIds) {
