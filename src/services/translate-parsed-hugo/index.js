@@ -21,8 +21,7 @@ async function translate({ results, translationDetails, targetLanguageId }) {
         }
         let translatedTextSegment = (await translateText(textToTranslate, targetLanguageId));
         if (fmItem) {
-            translatedTextSegment = translatedTextSegment.replaceAll('\"', '"'); // temporarily unescape any escaped quotes so as not to double escape
-            translatedTextSegment = translatedTextSegment.replaceAll('"', '\"'); // escape all quotes
+            translatedTextSegment = translatedTextSegment.replaceAll('"', ''); // stop translation API from being extra "helpful" with frontmatter values
             translatedTextSegment = `"${translatedTextSegment}${fmItem.suffix}`
         }
 
