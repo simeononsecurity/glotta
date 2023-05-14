@@ -15,12 +15,14 @@ async function translate({ results, translationDetails, targetLanguageId }) {
     for await (const i of translationDetails.locations) {
         let textToTranslate = results[i];
         const fmItem = translationDetails.frontmatterItemValueLocations[i];
-        
+
         if (fmItem) {
             textToTranslate = fmItem ? fmItem.rawValue : textToTranslate;
         }
         let translatedTextSegment = (await translateText(textToTranslate, targetLanguageId));
         if (fmItem) {
+            translatedTextSegment = translatedTextSegment.replaceAll('\"', '"'); // temporarily unescape any escaped quotes so as not to double escape
+            translatedTextSegment = translatedTextSegment.replaceAll('"', '\"'); // escape all quotes
             translatedTextSegment = `"${translatedTextSegment}${fmItem.suffix}`
         }
 
