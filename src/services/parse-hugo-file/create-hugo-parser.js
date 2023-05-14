@@ -47,7 +47,7 @@ function createLexerAndParser() {
     // ----------------- lexer mode: content -----------------
     const Shortcode = createToken({ name: "Shortcode", pattern: /\{\{.+\}\}/ });
     const CodeSnippet = createToken({ name: "CodeSnippet", pattern: /```[\s\S]+```/ });
-    const InlineCodeSnippet = createToken({ name: "CodeSnippet", pattern: /`[\s\S]+`/ });
+    const InlineCodeSnippet = createToken({ name: "InlineCodeSnippet", pattern: /`[\s\S]+`/ });
     const Content = createToken({ name: "Content", pattern: /[\s\S]*?(?=\{\{.*}\}|\[.*\]\(.*\)|```[\s\S]+```|`[\s\S]+`)/ });
     const ContentEnd = createToken({ name: "ContentEnd", pattern: /[\s\S]+/ });
 
