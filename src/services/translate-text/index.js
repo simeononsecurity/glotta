@@ -27,6 +27,9 @@ async function getTranslationApiProvider() {
 }
 
 async function translateTextWithGoogleTranslationApi(text, languageId) {
+    if(text === ""){
+        return text
+    }
     // the following expects process.env.GOOGLE_APPLICATION_CREDENTIALS
     //   to be set to the path to gcloud service account cred json file
     const translate = new Translate();
@@ -39,6 +42,9 @@ async function translateTextWithGoogleTranslationApi(text, languageId) {
 }
 
 async function translateTextWithDeeplApi(text, languageId) {
+    if(text === ""){
+        return text
+    }
     const result = await translator.translateText(text, null, languageId);
     return result.text;
 }
