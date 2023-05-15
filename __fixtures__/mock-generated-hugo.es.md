@@ -38,6 +38,10 @@ Identificación
 
 El segundo paso en el proceso de respuesta a incidentes es la **identificación**. Esto implica detectar
 
+- [fake-url-title](fake-url)
+- [fake-abc-title](url)
+- [title](fake)
+
 ## Mejores prácticas para la respuesta a incidentes
 
 La respuesta efectiva a incidentes requiere una

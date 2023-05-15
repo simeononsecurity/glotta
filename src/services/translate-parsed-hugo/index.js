@@ -20,6 +20,9 @@ async function translate({ results, translationDetails, targetLanguageId }) {
             textToTranslate = fmItem ? fmItem.rawValue : textToTranslate;
         }
         let translatedTextSegment = (await translateText(textToTranslate, targetLanguageId));
+        if(textToTranslate.endsWith(' ') && !translatedTextSegment.endsWith(' ')){
+            translatedTextSegment += ' ';
+        }
         if (fmItem) {
             translatedTextSegment = translatedTextSegment.replaceAll('"', ''); // stop translation API from being extra "helpful" with frontmatter values
             translatedTextSegment = `"${translatedTextSegment}${fmItem.suffix}`
