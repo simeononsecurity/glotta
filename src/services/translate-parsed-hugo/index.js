@@ -23,7 +23,13 @@ async function translate({ results, translationDetails, targetLanguageId }) {
             translatedTextSegment += ' ';
         }
         else if (!textToTranslate.endsWith(' ') && translatedTextSegment.endsWidth(' ')) { // don't randomly add trailing spaces
-            translatedTExtSegment = translatedTextSegment.slice(0, -1);
+            translatedTextSegment = translatedTextSegment.slice(0, -1);
+        }
+        else if (!textToTranslate.endsWith('.') && translatedTextSegment.endsWidth('.')) { // don't randomly add trailing periods
+            translatedTextSegment = translatedTextSegment.slice(0, -1);
+        }
+        else if (!textToTranslate.endsWith(' .') && translatedTextSegment.endsWidth(' .')) { // don't randomly add trailing spaces with periods
+            translatedTextSegment = translatedTextSegment.slice(0, -2);
         }
         if (fmItem) {
             translatedTextSegment = translatedTextSegment.replaceAll('"', ''); // stop translation API from being extra "helpful" with frontmatter values
