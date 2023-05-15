@@ -1,4 +1,3 @@
-const { EOL } = require('os');
 const { translateText } = require('../translate-text');
 const { assertValidLanguageId } = require('../../assert-valid-language-id');
 
@@ -20,8 +19,11 @@ async function translate({ results, translationDetails, targetLanguageId }) {
             textToTranslate = fmItem ? fmItem.rawValue : textToTranslate;
         }
         let translatedTextSegment = (await translateText(textToTranslate, targetLanguageId));
-        if(textToTranslate.endsWith(' ') && !translatedTextSegment.endsWith(' ')){
+        if (textToTranslate.endsWith(' ') && !translatedTextSegment.endsWith(' ')) { // retain trailing spaces
             translatedTextSegment += ' ';
+        }
+        else if (!textToTranslate.endsWith(' ') && translatedTextSegment.endsWidth(' ')) { // don't randomly add trailing spaces
+            translatedTExtSegment = translatedTextSegment.slice(0, -1);
         }
         if (fmItem) {
             translatedTextSegment = translatedTextSegment.replaceAll('"', ''); // stop translation API from being extra "helpful" with frontmatter values
