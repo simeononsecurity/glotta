@@ -46,7 +46,7 @@ jobs:
         with:
           credentials_json: ${{ env.GOOGLE_APPLICATION_CREDENTIALS }}
       - name: Publish to GitHub Packages
-        run: npm publish
+        run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
