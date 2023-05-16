@@ -15,7 +15,7 @@
     "commander": "^10.0.1",
     "deepl-node": "^1.9.0",
     "dotenv": "^16.0.3",
-    "glotta": "^1.0.3"
+    "glotta": "^1.0.4"
   },
   "devDependencies": {
     "jest": "^29.5.0"
