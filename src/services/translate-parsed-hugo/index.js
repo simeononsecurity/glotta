@@ -22,13 +22,13 @@ async function translate({ results, translationDetails, targetLanguageId }) {
         if (textToTranslate.endsWith(' ') && !translatedTextSegment.endsWith(' ')) { // retain trailing spaces
             translatedTextSegment += ' ';
         }
-        else if (!textToTranslate.endsWith(' ') && translatedTextSegment.endsWidth(' ')) { // don't randomly add trailing spaces
+        else if (!textToTranslate.endsWith(' ') && translatedTextSegment.endsWith(' ')) { // don't randomly add trailing spaces
             translatedTextSegment = translatedTextSegment.slice(0, -1);
         }
-        else if (!textToTranslate.endsWith('.') && translatedTextSegment.endsWidth('.')) { // don't randomly add trailing periods
+        else if (!textToTranslate.endsWith('.') && translatedTextSegment.endsWith('.')) { // don't randomly add trailing periods
             translatedTextSegment = translatedTextSegment.slice(0, -1);
         }
-        else if (!textToTranslate.endsWith(' .') && translatedTextSegment.endsWidth(' .')) { // don't randomly add trailing spaces with periods
+        else if (!textToTranslate.endsWith(' .') && translatedTextSegment.endsWith(' .')) { // don't randomly add trailing spaces with periods
             translatedTextSegment = translatedTextSegment.slice(0, -2);
         }
         if (fmItem) {
