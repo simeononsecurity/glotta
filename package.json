@@ -7,7 +7,7 @@
     "glotta": "node src/index.js",
     "test": "jest"
   },
-  "author": "",
+  "author": "simeononsecurity",
   "license": "MIT",
   "dependencies": {
     "@google-cloud/translate": "^7.2.1",
