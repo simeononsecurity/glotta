@@ -59,3 +59,5 @@ TRANSLATE_PROVIDER=DEEPL
 ## License
 
 [MIT](https://github.com/simeononsecurity/glotta/blob/main/LICENSE)
+
+## Learn more about [glotta and translating hugo index bundles](https://simeononsecurity.ch/other/glotta-streamlining-hugo-text-translation-for-global-reach/)
