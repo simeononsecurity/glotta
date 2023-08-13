@@ -8,11 +8,11 @@ Script that translates Hugo markdown file content into other languages.
 
 ### Google Translate
 
-`ar, bn, ca, zh, en, fr, de, hi, it, ja, pt, pa, ro, ru, es, en`
+`ar, bn, ca, de, en, es, fr, hi, it, ja, pa, pt, ro, ru, zh`
 
 ### Deepl
 
-`de, fr, es, ja, it, pl, nl, en`
+`de, en, es, fr, it, ja, nl, pl, ro, ru, zh`
 
 ## How to change Translation API Provider
 
