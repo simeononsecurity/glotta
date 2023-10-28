@@ -1,6 +1,8 @@
 # Glotta
 Script that translates Hugo markdown file content into other languages.
 
+[View Glotta on NPM](https://www.npmjs.com/package/glotta)
+
 ## Notes and Warnings
 **WARNING**: There are no guarantees that this code has no security vulnerabilities. The code is provided as-is. We hold no responcibility for how you use it.
 
