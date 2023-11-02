@@ -11,7 +11,7 @@ async function getMissingLanguageIdsForDir({ dir, targetLanguageIds }) {
         for (let j = 0; j < seenFiles.length; j++) {
             const file = seenFiles[j];
             const filepath = join(dir, file);
-            if (filepath.endsWith(`.${id}.md`) && !existingLanguageIds[id]) {
+            if (filepath.endsWith(`.${id}.md`) && !existingLanguageIds[id] && !id.startsWith('_')) {
                 existingLanguageIds[id] = id;
             }
         }
