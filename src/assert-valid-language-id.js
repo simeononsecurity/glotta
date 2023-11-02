@@ -1,17 +1,17 @@
 const { TRANSLATE_PROVIDERS } = require("./assert-valid-translate-provider");
 
 const LANGUAGE_IDS = process.env.TRANSLATE_PROVIDER === TRANSLATE_PROVIDERS.DEEPL ? {
-    de: 'de',
-    fr: 'fr',
-    es: 'es',
-    ja: 'ja',
-    it: 'it',
-    pl: 'pl',
-    nl: 'nl',
-    en: 'en',
-    ro: 'ro',
-    ru: 'ru',
-    zh: 'zh'
+    de: 'de',
+    fr: 'fr',
+    es: 'es',
+    ja: 'ja',
+    it: 'it',
+    pl: 'pl',
+    nl: 'nl',
+    en: 'en',
+    ro: 'ro',
+    ru: 'ru',
+    zh: 'zh'
 } : {
     ar: 'ar',
     bn: 'bn',
