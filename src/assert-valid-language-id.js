@@ -8,7 +8,10 @@ const LANGUAGE_IDS = process.env.TRANSLATE_PROVIDER === TRANSLATE_PROVIDERS.DEEP
     it: 'it',
     pl: 'pl',
     nl: 'nl',
-    en: 'en'
+    en: 'en',
+    ro: 'ro',
+    ru: 'ru',
+    zh: 'zh'
 } : {
     ar: 'ar',
     bn: 'bn',
