@@ -1,4 +1,7 @@
 # Glotta
+
+[![Sponsor](https://img.shields.io/badge/Sponsor-Click%20Here-ff69b4)](https://github.com/sponsors/simeononsecurity) 
+
 Script that translates Hugo markdown file content into other languages.
 
 [View Glotta on NPM](https://www.npmjs.com/package/glotta)
