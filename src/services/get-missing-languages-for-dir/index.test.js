@@ -1,13 +1,28 @@
-const { resolve } = require('node:path');
-const { getMissingLanguageIdsForDir } = require(".");
-const { LANGUAGE_IDS } = require('../../assert-valid-language-id');
+const { mkdtemp, writeFile, rm } = require('node:fs/promises');
+const { join } = require('node:path');
+const { tmpdir } = require('node:os');
+const { getMissingLanguageIdsForDir } = require('.');
 
-const FIXTURES_DIR = resolve(__dirname, '../../../__fixtures__');
-const DIR = resolve(FIXTURES_DIR, './example-dir');
+describe('getMissingLanguageIdsForDir', () => {
+    let dir;
 
-describe('getMissingLanguagesForDir', () => {
-    it('returns missing language ids given a dir', async () => {
-        const missingLanguageIds = await getMissingLanguageIdsForDir({ dir: DIR, targetLanguageIds: Object.keys(LANGUAGE_IDS) });
-        expect(missingLanguageIds).toEqual(["ar", "bn", "ca", "fr", "de", "hi", "it", "ja", "pt", "pa", "ro", "ru", "es"]);
+    beforeEach(async () => {
+        dir = await mkdtemp(join(tmpdir(), 'glotta-missing-'));
+        await writeFile(join(dir, 'first.en.md'), 'source');
+        await writeFile(join(dir, 'second.en.md'), 'source');
+        await writeFile(join(dir, 'first.es.md'), 'translation');
+    });
+
+    afterEach(async () => {
+        await rm(dir, { recursive: true, force: true });
+    });
+
+    it('checks the matching bundle filename, not any file in the directory', async () => {
+        expect(await getMissingLanguageIdsForDir({
+            dir, sourceFilePath: join(dir, 'second.en.md'), targetLanguageIds: ['es', 'fr']
+        })).toEqual(['es', 'fr']);
+        expect(await getMissingLanguageIdsForDir({
+            dir, sourceFilePath: join(dir, 'first.en.md'), targetLanguageIds: ['es', 'fr']
+        })).toEqual(['fr']);
     });
 });

@@ -1,23 +1,31 @@
-require('dotenv').config()
+const { parseHugo } = require('../parse-hugo-file');
+const { translateParsedHugo } = require('.');
 
-const { resolve } = require('node:path');
-const { getFileContents } = require('../get-file-contents');
-const { translateParsedHugo } = require('./index');
-const { LANGUAGE_IDS } = require('../../assert-valid-language-id');
-const { TRANSLATE_PROVIDERS } = require('../../assert-valid-translate-provider');
+test('#32 sends a non-English source language through the translation seam', async () => {
+    const calls = [];
+    const translator = async (text, target, source) => {
+        calls.push({ text, target, source });
+        return text === 'Guten Tag' ? 'Good day' : text;
+    };
+    const translated = await translateParsedHugo({
+        ...parseHugo('---\ntitle: "Guten Tag"\n---\n## Guten Tag\n'),
+        sourceLanguageId: 'de',
+        targetLanguageId: 'en',
+        translator
+    });
+    expect(translated).toBe('---\ntitle: "Good day"\n---\n## Good day\n');
+    expect(calls).toEqual([
+        { text: 'Guten Tag', target: 'en', source: 'de' },
+        { text: 'Guten Tag', target: 'en', source: 'de' }
+    ]);
+});
 
-const MOCK_PARSED_HUGO_PATH = resolve(__dirname, '../../../__fixtures__/mock-parsed-hugo.json');
-
-const MOCK_GENERATED_HUGO_PATH = resolve(__dirname, '../../../__fixtures__/mock-generated-hugo.es.md'); // GOOGLE result
-const MOCK_GENERATED_HUGO_PATH_DEEPL = resolve(__dirname, '../../../__fixtures__/mock-generated-hugo-deepl.es.md'); // DEEPL result
-
-const EXPECTED_PATH = process.env.TRANSLATE_PROVIDER === TRANSLATE_PROVIDERS.DEEPL ? MOCK_GENERATED_HUGO_PATH_DEEPL : MOCK_GENERATED_HUGO_PATH;
-describe('translateParsedHugo', () => {
-    it('translates parsed hugo given translation indicies', async () => {
-        const { results, translationDetails } = JSON.parse(await getFileContents(MOCK_PARSED_HUGO_PATH));
-        const EXPECTED = await getFileContents(EXPECTED_PATH);
-        const translatedText = await translateParsedHugo({ results, translationDetails, targetLanguageId: LANGUAGE_IDS.es });
-        
-        expect(translatedText).toEqual(EXPECTED);
-    }, 20000);
+test('escapes translated YAML quotes while retaining the original quote style', async () => {
+    const translated = await translateParsedHugo({
+        ...parseHugo("---\ntitle: 'Hello'\ndescription: \"World\"\n---\n"),
+        targetLanguageId: 'es',
+        translator: async () => 'He said "yes" and it\'s good'
+    });
+    expect(translated).toContain("title: 'He said \"yes\" and it''s good'");
+    expect(translated).toContain('description: "He said \\"yes\\" and it\'s good"');
 });

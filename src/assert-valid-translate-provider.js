@@ -1,12 +1,15 @@
 const { InvalidArgumentError } = require("commander");
 
-const TRANSLATE_PROVIDERS = {
+const TRANSLATE_PROVIDERS = Object.freeze({
     GOOGLE: 'GOOGLE',
-    DEEPL: 'DEEPL'
-}
+    DEEPL: 'DEEPL',
+    OPENAI: 'OPENAI',
+    CODEX: 'CODEX',
+    CLAUDE: 'CLAUDE'
+});
 
-async function assertValidTranslateProvider(provider) {
-    if (typeof TRANSLATE_PROVIDERS[provider] === 'undefined') {
+function assertValidTranslateProvider(provider) {
+    if (!Object.hasOwn(TRANSLATE_PROVIDERS, provider)) {
         throw new InvalidArgumentError(`${provider} is not a valid Translate Provider`);
     }
 }

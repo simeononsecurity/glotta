@@ -1,23 +1,40 @@
-const { resolve } = require('node:path');
-const { LANGUAGE_IDS } = require('../../assert-valid-language-id');
+const { mkdtemp, mkdir, writeFile, rm } = require('node:fs/promises');
+const { join } = require('node:path');
+const { tmpdir } = require('node:os');
 const { getPathsOfFilesInLanguage } = require('./index');
 
-const FIXTURES_DIR = resolve(__dirname, '../../../__fixtures__');
-
 describe('getPathsOfFilesInLanguage', () => {
-    it('recursive case: returns an array of file paths for a valid language id', async () => {
-        const DIR = resolve(FIXTURES_DIR, './example-dir');
-        let paths = await getPathsOfFilesInLanguage({ startDir: DIR, languageId: LANGUAGE_IDS.en, recursive: true });
-        expect(paths).toEqual({ "/home/l/Projects/github.com/1nf053c/glotta/__fixtures__/example-dir": ["/home/l/Projects/github.com/1nf053c/glotta/__fixtures__/example-dir/mock-file.en.md"], "/home/l/Projects/github.com/1nf053c/glotta/__fixtures__/example-dir/nested-example-dir": ["/home/l/Projects/github.com/1nf053c/glotta/__fixtures__/example-dir/nested-example-dir/mock-file.en.md"] })
+    let root;
+
+    beforeEach(async () => {
+        root = await mkdtemp(join(tmpdir(), 'glotta-discovery-'));
+        await mkdir(join(root, 'nested'));
+        await writeFile(join(root, 'index.en.md'), 'source');
+        await writeFile(join(root, 'index.es.md'), 'translation');
+        await writeFile(join(root, 'nested', 'index.en.md'), 'nested source');
     });
 
-    it('non-recursive case: returns an array of file paths for a valid language id', async () => {
-        const DIR = resolve(FIXTURES_DIR, './example-dir');
-        let paths = await getPathsOfFilesInLanguage({ startDir: DIR, languageId: LANGUAGE_IDS.en, recursive: false });
-        expect(paths).toEqual({ "/home/l/Projects/github.com/1nf053c/glotta/__fixtures__/example-dir": ["/home/l/Projects/github.com/1nf053c/glotta/__fixtures__/example-dir/mock-file.en.md"] })
+    afterEach(async () => {
+        await rm(root, { recursive: true, force: true });
     });
 
-    it('returns a TypeError if provided an invalid language id', async () => {
-        await expect(getPathsOfFilesInLanguage(FIXTURES_DIR, 'invalid-language-id')).rejects.toThrow(TypeError);
+    it('finds nested source files only when recursive', async () => {
+        expect(await getPathsOfFilesInLanguage({ startDir: root, languageId: 'en', recursive: false }))
+            .toEqual({ [root]: [join(root, 'index.en.md')] });
+        expect(await getPathsOfFilesInLanguage({ startDir: root, languageId: 'en', recursive: true }))
+            .toEqual({
+                [root]: [join(root, 'index.en.md')],
+                [join(root, 'nested')]: [join(root, 'nested', 'index.en.md')]
+            });
+    });
+
+    it('finds files in a non-English source language', async () => {
+        expect(await getPathsOfFilesInLanguage({ startDir: root, languageId: 'es' }))
+            .toEqual({ [root]: [join(root, 'index.es.md')] });
+    });
+
+    it('rejects an invalid language id', async () => {
+        await expect(getPathsOfFilesInLanguage({ startDir: root, languageId: 'invalid' }))
+            .rejects.toThrow(TypeError);
     });
 });

@@ -1,36 +1,17 @@
-function withRetries(func) {
-    return async function () {
-        let numRetries = 0;
-        const maxRetries = 10;
-        const initialDelayMs = 5000;
-        const backoffFactor = 2;
-        for (let i = 0; i < maxRetries; i++) {
+function withRetries(func, { maxAttempts = 3, initialDelayMs = 250 } = {}) {
+    return async (...args) => {
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
             try {
-                const result = await func(...arguments);
-                return result;
-            }
-            catch (err) {
-                if (!isRetryable(err)) {
-                    throw err;
+                return await func(...args);
+            } catch (error) {
+                const status = Number(error.code || error.status);
+                if (attempt === maxAttempts || (status !== 429 && status < 500) || !Number.isFinite(status)) {
+                    throw error;
                 }
-                numRetries++;
-                const delayMs = initialDelayMs * Math.pow(backoffFactor, numRetries);
-                console.warn(`Error during request. Retrying in ${delayMs} ms.`, err);
-                await sleep(delayMs);
+                await new Promise(resolve => setTimeout(resolve, initialDelayMs * (2 ** (attempt - 1))));
             }
         }
-    }
+    };
 }
 
-
-async function isRetryable(err) {
-    return (err.code === 429 || err.code >= 500) && numRetries < maxRetries;
-}
-
-async function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-module.exports = {
-    withRetries
-}
+module.exports = { withRetries };

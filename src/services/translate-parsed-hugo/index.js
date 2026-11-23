@@ -1,61 +1,30 @@
 const { translateText } = require('../translate-text');
 const { assertValidLanguageId } = require('../../assert-valid-language-id');
 
-async function translateParsedHugo({ results, translationDetails, targetLanguageId }) {
+async function translateParsedHugo({
+    results, translationDetails, targetLanguageId, sourceLanguageId = 'en',
+    translator = translateText
+}) {
+    await assertValidLanguageId(sourceLanguageId);
     await assertValidLanguageId(targetLanguageId);
-    const translatedResults = await translate({ results, translationDetails, targetLanguageId });
-    const translatedFileText = await asOneString(translatedResults);
-    return translatedFileText;
-}
-
-async function translate({ results, translationDetails, targetLanguageId }) {
-    const newResults = [];
-    let j = 0;
-    for await (const i of translationDetails.locations) {
-        let textToTranslate = results[i];
-        const fmItem = translationDetails.frontmatterItemValueLocations[i];
-
-        if (fmItem) {
-            textToTranslate = fmItem ? fmItem.rawValue : textToTranslate;
+    const translated = results.slice();
+    for (const index of translationDetails.locations) {
+        const detail = translationDetails.frontmatterItemValueLocations[index];
+        const input = detail ? detail.rawValue : results[index];
+        const output = await translator(input, targetLanguageId, sourceLanguageId);
+        if (typeof output !== 'string') {
+            throw new TypeError('Translation provider returned a non-text response');
         }
-        let translatedTextSegment = (await translateText(textToTranslate, targetLanguageId));
-        if (textToTranslate.endsWith(' ') && !translatedTextSegment.endsWith(' ')) { // retain trailing spaces
-            translatedTextSegment += ' ';
+        const value = output.trim();
+        if (detail) {
+            if (detail.quote === '"') translated[index] = '"' + value.replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
+            else if (detail.quote === "'") translated[index] = "'" + value.replace(/'/g, "''") + "'";
+            else translated[index] = value;
+        } else {
+            translated[index] = value;
         }
-        else if (!textToTranslate.endsWith(' ') && translatedTextSegment.endsWith(' ')) { // don't randomly add trailing spaces
-            translatedTextSegment = translatedTextSegment.slice(0, -1);
-        }
-        else if (!textToTranslate.endsWith('.') && translatedTextSegment.endsWith('.')) { // don't randomly add trailing periods
-            translatedTextSegment = translatedTextSegment.slice(0, -1);
-        }
-        else if (!textToTranslate.endsWith(' .') && translatedTextSegment.endsWith(' .')) { // don't randomly add trailing spaces with periods
-            translatedTextSegment = translatedTextSegment.slice(0, -2);
-        }
-        if (fmItem) {
-            translatedTextSegment = translatedTextSegment.replaceAll('"', ''); // stop translation API from being extra "helpful" with frontmatter values
-            translatedTextSegment = `"${translatedTextSegment}${fmItem.suffix}`
-        }
-
-        while (j < i) {
-            newResults.push(results[j]);
-            j++;
-        }
-        if (j === i) {
-            j++;
-        }
-        newResults.push(translatedTextSegment);
     }
-    while (j < results.length) {
-        newResults.push(results[j]);
-        j++;
-    }
-    return newResults;
+    return translated.join('');
 }
 
-async function asOneString(results) {
-    return results.join('');
-}
-
-module.exports = {
-    translateParsedHugo
-}
+module.exports = { translateParsedHugo };
