@@ -1,13 +1,20 @@
 # Glotta
 
-[![Sponsor](https://img.shields.io/badge/Sponsor-Click%20Here-ff69b4)](https://github.com/sponsors/simeononsecurity) 
+[![Tests](https://github.com/simeononsecurity/glotta/actions/workflows/test.yml/badge.svg)](https://github.com/simeononsecurity/glotta/actions/workflows/test.yml)
+[![Sponsor](https://img.shields.io/badge/Sponsor-Click%20Here-ff69b4)](https://github.com/sponsors/simeononsecurity)
 
-Script that translates Hugo markdown file content into other languages.
+Glotta translates Hugo Markdown bundles into other languages while keeping
+front matter layout, links, headings, code, shortcodes, and formatting.
 
-[View Glotta on NPM](https://www.npmjs.com/package/glotta)
+[GitHub releases](https://github.com/simeononsecurity/glotta/releases) contain
+the current source. The [npm package](https://www.npmjs.com/package/glotta)
+follows a separate release schedule.
 
-## Notes and Warnings
-**WARNING**: There are no guarantees that this code has no security vulnerabilities. The code is provided as-is. We hold no responcibility for how you use it.
+## Install
+
+Use Node.js 22 or newer. Clone the repository and run `npm ci` to install the
+locked dependencies. Copy `.env.template` to `.env` if you need local provider
+settings. `.env` is ignored by Git.
 
 ## Supported Languages
 
@@ -15,19 +22,19 @@ Script that translates Hugo markdown file content into other languages.
 
 `ar, bn, ca, de, en, es, fr, hi, it, ja, pa, pt, ro, ru, zh`
 
-### Deepl
+### DeepL
 
 `de, en, es, fr, it, ja, nl, pl, ro, ru, zh`
 
 ## Translation providers
 
-Install the locked dependencies with `npm ci`. Set `TRANSLATE_PROVIDER` to
-`GOOGLE` (default), `DEEPL`, `OPENAI`, `CODEX`, or `CLAUDE`.
-The test suite uses provider mocks and needs no credentials.
+Set `TRANSLATE_PROVIDER` to `GOOGLE` (default), `DEEPL`, `OPENAI`,
+`CODEX`, or `CLAUDE`. The test suite uses provider mocks and needs no
+credentials.
 
 | Provider | Settings |
 | --- | --- |
-| Google Translate | `GOOGLE_APPLICATION_CREDENTIALS` points to a service account JSON file. |
+| Google Translate | Uses Google Application Default Credentials. `GOOGLE_APPLICATION_CREDENTIALS` may point to a service account JSON file. |
 | DeepL | Set `DEEPL_AUTH_KEY`. |
 | OpenAI-compatible chat completions | Set `OPENAI_BASE_URL` and `OPENAI_MODEL`. Set `OPENAI_API_KEY` for authenticated endpoints. The default base URL is `https://api.openai.com/v1`, which requires an API key. The URL may end in `/chat/completions` or its parent path. |
 | Codex CLI | Install and authenticate `codex` on your PATH. `CODEX_MODEL` is optional. |
@@ -43,12 +50,11 @@ source detection when the source is English, matching its previous behavior.
 AI providers translate each selected text segment. Review their output before
 using it in a published site.
 
-## How to run Glotta
-#### Example Glotta command:
+## Run
 
 ```sh
-node src/index.js --source=__fixtures__ --recursive --force
-node src/index.js --source=content --sourceLanguageId de --targetLanguageIds en
+node src/index.js --source content --recursive --targetLanguageIds es fr
+node src/index.js --source content --sourceLanguageId de --targetLanguageIds en
 ```
 
 `--source` selects the directory to search. By default, Glotta reads
@@ -62,7 +68,15 @@ target files. It never overwrites a source file.
 The parser keeps front matter layout, Markdown links and destinations,
 headings, code, shortcodes, and formatting markers. It translates text in
 YAML strings and lists while leaving dates, slugs, paths, and control fields
-unchanged. Run `npm test -- --runInBand` for offline regression checks.
+unchanged.
+
+## Test
+
+Run `npm test -- --runInBand` for offline unit and issue regression tests.
+The [Tests workflow](https://github.com/simeononsecurity/glotta/actions/workflows/test.yml)
+runs these tests and checks CLI startup on Node.js 22, 24, and 26 for pull
+requests, main branch pushes, and version tags. It uses no provider secrets
+and makes no paid translation requests.
 
 ## Learn more about [glotta and translating hugo index bundles](https://simeononsecurity.ch/other/glotta-streamlining-hugo-text-translation-for-global-reach/)
 
